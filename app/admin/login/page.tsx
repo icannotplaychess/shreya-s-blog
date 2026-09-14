@@ -1,6 +1,5 @@
 "use client";
 
-import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, Suspense } from "react";
 
@@ -9,13 +8,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(
-    searchParams.get("error") === "Configuration"
-      ? "Server auth is not configured. Set AUTH_SECRET in Vercel env vars, then redeploy."
-      : searchParams.get("error")
-        ? "Sign in failed. Check ADMIN_EMAIL and ADMIN_PASSWORD in Vercel env vars."
-        : ""
-  );
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
@@ -23,20 +16,29 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    setLoading(false);
-    if (result?.error) {
-      setError("Invalid email or password. Use the exact ADMIN_EMAIL and ADMIN_PASSWORD from your Vercel env vars.");
-      return;
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setError(
+          data.error ||
+            "Sign in failed. Use the exact ADMIN_EMAIL and ADMIN_PASSWORD from your Vercel env vars."
+        );
+        return;
+      }
+
+      router.push(searchParams.get("callbackUrl") || "/admin");
+      router.refresh();
+    } catch {
+      setError("Could not reach the server. Try again in a moment.");
+    } finally {
+      setLoading(false);
     }
-
-    router.push(searchParams.get("callbackUrl") || "/admin");
-    router.refresh();
   }
 
   return (

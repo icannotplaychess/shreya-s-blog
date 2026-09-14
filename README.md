@@ -41,6 +41,7 @@ Default admin login (after seed): `admin@shankies.local` / `changeme`
 
 4. **Redeploy with build cache cleared** (Vercel → Deployments → ⋯ → Redeploy → uncheck “Use existing Build Cache”).
 5. Sign in at `/admin` using the exact `ADMIN_EMAIL` and `ADMIN_PASSWORD` values from step 3.
+6. If login still fails, open `/api/health` on your site — it will show which env vars are missing.
 
 > **Note:** On Vercel, SQLite runs from `/tmp` at runtime so login and the CMS can work without an external database. Content may still reset across cold starts or redeploys. For a permanent production site, switch to Postgres (Neon/Supabase) later.
 

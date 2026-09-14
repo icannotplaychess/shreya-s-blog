@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 
 const NAV = [
   { href: "/admin", label: "Dashboard" },
@@ -15,7 +14,14 @@ const NAV = [
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isLogin = pathname === "/admin/login";
+
+  async function handleSignOut() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/admin/login");
+    router.refresh();
+  }
 
   if (isLogin) return <>{children}</>;
 
@@ -44,7 +50,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               View site ↗
             </Link>
             <button
-              onClick={() => signOut({ callbackUrl: "/admin/login" })}
+              onClick={handleSignOut}
               className="px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700"
             >
               Sign out
