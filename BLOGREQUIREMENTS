@@ -1,0 +1,552 @@
+Prompt for Cursor
+
+Create a fully responsive website called "Shankie's".
+
+This is NOT a minimal blog.
+
+It should feel like discovering a teenage girl's personal website in 2005-2009, mixed with Indian 2000s nostalgia, MySpace, magazine cutouts, scrapbook journals, Orkut, old Disney magazines, Bratz, PicMix, early Blogspot and Fanpop.
+
+The website should feel handmade, messy, maximalist, personal and full of personality.
+
+Think:
+
+MySpace profile
+Tiger Beat magazine
+J-14 magazine
+Bratz magazine
+Disney Channel magazines
+Orkut scraps
+old Bollywood magazines
+Archies cards
+PicMix edits
+early internet glitter graphics
+sticker books
+diary pages
+collage journals
+Indian 2000s childhood
+
+This is NOT supposed to look modern.
+
+It should almost feel like an interactive magazine someone coded themselves.
+
+Main aesthetic
+
+Use:
+
+hot pink
+magenta
+lilac
+purple
+cyan
+bright orange
+lemon yellow
+turquoise
+white
+
+Everything should have:
+
+gradients
+sparkles
+drop shadows
+rounded corners
+glossy buttons
+thick outlines
+stickers
+arrows
+doodles
+stars
+flowers
+butterflies
+hearts
+rhinestones
+glitter effects
+
+NO flat UI.
+
+NO minimalist spacing.
+
+NO huge empty whitespace.
+
+Every inch should feel alive.
+
+Typography
+
+Use multiple fonts.
+
+Examples:
+
+Bangers
+Chewy
+Comic Neue
+Fredoka
+Permanent Marker
+Pacifico
+Indie Flower
+Luckiest Guy
+
+Mix them together exactly like old teen magazines.
+
+Some headings should look like magazine cutouts.
+
+Some should have outlines.
+
+Some should use multiple colors.
+
+Layout
+
+The entire website should resemble pages from a teen magazine.
+
+Not a blog.
+
+Every section should feel like turning another magazine spread.
+
+Use:
+
+overlapping cards
+taped photos
+polaroids
+speech bubbles
+magazine snippets
+sticky notes
+doodles
+arrows pointing between sections
+handwritten annotations
+stickers
+
+Make sections slightly rotated like a scrapbook.
+
+Landing page
+
+Large title:
+
+SHANKIE'S
+
+Below it:
+
+"your favourite corner of the internet ★"
+
+or
+
+"a little scrapbook of girlhood"
+
+Add:
+
+visitor counter
+
+guestbook button
+
+currently listening widget
+
+online status
+
+mood
+
+favorite song
+
+tiny blinking gifs
+
+old loading bar
+
+marquee text
+
+scrolling glitter stars
+
+Navigation
+
+Navigation should look like MySpace tabs.
+
+Examples:
+
+Home
+
+Diary
+
+Photo Dump
+
+Playlists
+
+Movies
+
+Books
+
+Style
+
+School Life
+
+Girlhood
+
+Dreams
+
+Collections
+
+Letters
+
+Downloads
+
+Guestbook
+
+About Me
+
+Background
+
+Use multiple layered backgrounds.
+
+Examples:
+
+tiny flowers
+
+stars
+
+dots
+
+hearts
+
+sparkles
+
+checkerboards
+
+polka dots
+
+pink grids
+
+clouds
+
+comic halftones
+
+Y2K swirls
+
+gradient blobs
+
+The page should have texture instead of being flat.
+
+Widgets
+
+Include nostalgic widgets like:
+
+Digital clock
+
+Visitor counter
+
+Mood
+
+Now Playing
+
+Song of the Week
+
+Quote of the Day
+
+Sticker collection
+
+Best friends
+
+Wishlist
+
+Monthly favourites
+
+Current obsession
+
+Last updated
+
+Polaroid wall
+
+Guestbook
+
+Button wall
+
+Blinkie collection
+
+Pixel pets
+
+Weather
+
+Calendar
+
+Magazine sections
+
+Each article should resemble Disney magazines.
+
+Examples:
+
+What's In My Bag?
+
+Use arrows pointing to objects.
+
+My Current Playlist
+
+Album covers
+
+CD graphics
+
+Winamp inspired player
+
+This or That
+
+Cute quiz layout
+
+What's My Vibe?
+
+Magazine quiz
+
+Summer Bucket List
+
+Sticker checklist
+
+Books I'm Reading
+
+Magazine cards
+
+My Photo Dump
+
+Messy collage
+
+Life Lately
+
+Diary entries
+
+Style Files
+
+Moodboards
+
+Magazine clippings
+
+Things That Made Me Smile
+
+Tiny handwritten notes
+
+Indian 2000s nostalgia
+
+Blend Indian childhood naturally throughout.
+
+Examples:
+
+Doordarshan
+
+Poppins
+
+Phantom cigarettes
+
+Boomer
+
+Big Babol
+
+Center Shock
+
+Kismi
+
+Mango Bite
+
+Melody
+
+Natraj pencils
+
+Camlin geometry box
+
+Apsara pencils
+
+Classmate notebooks
+
+Archies
+
+old Bollywood posters
+
+Kareena Kapoor
+
+Priyanka Chopra
+
+Aishwarya Rai
+
+Preity Zinta
+
+Shah Rukh Khan
+
+Kajol
+
+Katrina Kaif
+
+old MTV India
+
+Channel V
+
+Zoom TV
+
+old Nokia phones
+
+SMS language
+
+Orkut scraps
+
+Yahoo Messenger
+
+Windows XP
+
+MSN Messenger
+
+internet cafés
+
+cyber cafés
+
+school diaries
+
+plastic book covers
+
+auto rides
+
+summer vacations
+
+music CDs
+
+cassette tapes
+
+comic books
+
+Include them as decorative nostalgia rather than overwhelming the content.
+
+Decorations
+
+Randomly place:
+
+sparkle gifs
+
+pixel hearts
+
+glitter butterflies
+
+flowers
+
+bows
+
+magazine arrows
+
+comic explosions
+
+speech bubbles
+
+scribbles
+
+handwritten notes
+
+"LOL"
+
+"OMG"
+
+"currently obsessed"
+
+"xoxo"
+
+"cute!!"
+
+"dreaming..."
+
+Hover animations
+
+Everything should move.
+
+Examples:
+
+stickers wiggle
+
+photos rotate slightly
+
+buttons pop
+
+sparkles appear
+
+polaroids bounce
+
+stars twinkle
+
+magazine cards lift
+
+cursor changes to a glitter star
+
+Mouse effects
+
+Sparkle trail
+
+Floating hearts
+
+Tiny stars
+
+Butterflies
+
+Cursor glow
+
+Optional toggle to disable effects.
+
+Music
+
+Include a nostalgic music player inspired by MySpace.
+
+Autoplay OFF.
+
+User presses Play.
+
+Allow playlists.
+
+Album art displayed.
+
+Diary pages
+
+Diary entries should resemble scanned notebook pages.
+
+Use:
+
+lined paper
+
+washi tape
+
+stickers
+
+handwritten fonts
+
+coffee stains
+
+pressed flowers
+
+doodles
+
+highlighted words
+
+tiny drawings
+
+Photo galleries
+
+Photos should appear like:
+
+polaroids
+
+film strips
+
+photo booth prints
+
+magazine cutouts
+
+scrapbook pages
+
+Clicking opens a cute lightbox.
+
+Code quality
+
+Use:
+
+Next.js
+
+TypeScript
+
+Tailwind CSS
+
+Framer Motion
+
+Component-based architecture
+
+Dark mode optional (styled like an old Windows XP "night theme," not modern black UI).
+
+Everything should be modular and easy to extend.
+
+Overall feeling
+
+When someone visits this website, it should feel like:
+
+finding a teenage girl's handmade website from 2007 that she spent months customizing after school, filled with Disney magazines, Indian 2000s childhood, Bollywood crushes, glitter graphics, diary pages, playlists, and little pieces of everyday girlhood.
+
+It should feel warm, chaotic, nostalgic, feminine, playful, imperfect, and deeply personal—not polished like a modern portfolio, but lovingly assembled like a digital scrapbook.
