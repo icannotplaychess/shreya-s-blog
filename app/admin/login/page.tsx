@@ -9,7 +9,13 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    searchParams.get("error") === "Configuration"
+      ? "Server auth is not configured. Set AUTH_SECRET in Vercel env vars, then redeploy."
+      : searchParams.get("error")
+        ? "Sign in failed. Check ADMIN_EMAIL and ADMIN_PASSWORD in Vercel env vars."
+        : ""
+  );
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {

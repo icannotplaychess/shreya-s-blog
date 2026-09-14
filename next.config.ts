@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["better-sqlite3", "@prisma/adapter-better-sqlite3"],
+  outputFileTracingIncludes: {
+    "/api/**/*": ["./prisma/migrations/**/*.sql"],
+    "/**": ["./prisma/migrations/**/*.sql"],
+  },
 };
 
 export default nextConfig;
