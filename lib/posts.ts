@@ -1,13 +1,18 @@
 import { ContentType, PostStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "./prisma";
 
+/** Skip all DB reads during `next build` — Vercel may still prerender CMS routes. */
+function shouldSkipDb(): boolean {
+  return process.env.NEXT_PHASE === "phase-production-build";
+}
+
 function isMissingTableError(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === "P2021"
-  );
+  if (typeof error !== "object" || error === null) return false;
+  const e = error as { code?: string; message?: string };
+  if (e.code === "P2021") return true;
+  if (e.message?.includes("TableDoesNotExist")) return true;
+  if (e.message?.includes("does not exist")) return true;
+  return false;
 }
 
 export type PostWithRelations = Prisma.PostGetPayload<{
@@ -31,6 +36,7 @@ export async function getPublishedPosts(options?: {
   limit?: number;
   categorySlug?: string;
 }) {
+  if (shouldSkipDb()) return [];
   const { type, limit, categorySlug } = options ?? {};
   try {
   return await prisma.post.findMany({
@@ -52,6 +58,7 @@ export async function getPublishedPosts(options?: {
 }
 
 export async function getPostBySlug(slug: string, publishedOnly = true) {
+  if (shouldSkipDb()) return null;
   try {
   return await prisma.post.findFirst({
     where: {
@@ -67,6 +74,7 @@ export async function getPostBySlug(slug: string, publishedOnly = true) {
 }
 
 export async function getLatestByType(type: ContentType) {
+  if (shouldSkipDb()) return null;
   try {
   return await prisma.post.findFirst({
     where: { type, status: PostStatus.PUBLISHED },
@@ -80,6 +88,7 @@ export async function getLatestByType(type: ContentType) {
 }
 
 export async function getSiteSetting<T>(key: string, fallback: T): Promise<T> {
+  if (shouldSkipDb()) return fallback;
   try {
     const row = await prisma.siteSetting.findUnique({ where: { key } });
     if (!row) return fallback;

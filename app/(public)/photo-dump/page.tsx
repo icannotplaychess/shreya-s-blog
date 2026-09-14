@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { ContentType } from "@/generated/prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -13,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PhotoDumpPage() {
+  await connection();
   const dumps = await getPublishedPosts({ type: ContentType.PHOTO_DUMP });
 
   return (

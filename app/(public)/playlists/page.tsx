@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { ContentType } from "@/generated/prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -16,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PlaylistsPage() {
+  await connection();
   const [playlists, settings] = await Promise.all([
     getPublishedPosts({ type: ContentType.PLAYLIST }),
     getSiteSetting<{ songOfTheWeek?: { title: string; artist: string; note: string } }>("homepage", {}),
