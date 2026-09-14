@@ -25,6 +25,25 @@ npm run dev        # http://localhost:3000
 
 Default admin login (after seed): `admin@shankies.local` / `changeme`
 
+## Deploy on Vercel
+
+1. Import the GitHub repo at [vercel.com](https://vercel.com)
+2. Set **Production branch** to `main`
+3. Add these **Environment Variables** in Vercel → Project → Settings → Environment Variables:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | `file:./prisma/dev.db` |
+| `AUTH_SECRET` | output of `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | your Vercel URL, e.g. `https://shreya-s-blog-dnw7.vercel.app` |
+| `ADMIN_EMAIL` | your admin email |
+| `ADMIN_PASSWORD` | your admin password |
+
+4. Redeploy. The build runs `prisma migrate deploy` automatically to create database tables.
+5. After first successful deploy, run the seed once locally against production or add content via `/admin`.
+
+> **Note:** SQLite on Vercel is fine for getting started, but data resets on redeploys. For a permanent production site, switch to Postgres (Neon/Supabase) later.
+
 ## Public site
 
 | Route | Section |
