@@ -39,7 +39,7 @@ Default admin login (after seed): `admin@shankies.local` / `changeme`
 | `ADMIN_EMAIL` | your admin email |
 | `ADMIN_PASSWORD` | your admin password |
 
-4. Redeploy. The build runs `prisma migrate deploy` automatically to create database tables.
+4. **Redeploy with build cache cleared** (Vercel → Deployments → ⋯ → Redeploy → uncheck “Use existing Build Cache”). The build runs `prisma migrate deploy` automatically to create database tables.
 5. After first successful deploy, run the seed once locally against production or add content via `/admin`.
 
 > **Note:** SQLite on Vercel is fine for getting started, but data resets on redeploys. For a permanent production site, switch to Postgres (Neon/Supabase) later.

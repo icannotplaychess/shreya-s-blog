@@ -19,7 +19,25 @@ const dbUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
 const dbPath = dbUrl.startsWith("file:") ? dbUrl.slice(5) : dbUrl;
 const resolvedPath = path.resolve(process.cwd(), dbPath);
 
-const db = new Database(resolvedPath);
+let db;
+try {
+  db = new Database(resolvedPath);
+} catch (error) {
+  console.warn("⚠ Could not open database — skipping admin user creation");
+  console.warn(error instanceof Error ? error.message : error);
+  process.exit(0);
+}
+
+const userTable = db
+  .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'User'")
+  .get();
+
+if (!userTable) {
+  console.warn("⚠ User table not found — skipping admin user creation");
+  db.close();
+  process.exit(0);
+}
+
 const passwordHash = await bcrypt.hash(password, 12);
 const now = new Date().toISOString();
 
