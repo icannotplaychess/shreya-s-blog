@@ -9,8 +9,9 @@ A personal digital magazine, blog, scrapbook, diary and archive — built like a
 - **Next.js** (App Router) + **TypeScript**
 - **Tailwind CSS v4** — Y2K palette, layered scrapbook backgrounds
 - **Framer Motion** — wiggles, pops, twinkles
-- **Prisma** + **SQLite** — persistent content storage
-- **NextAuth.js** — protected admin area
+- **Prisma** + **SQLite / Turso** — content storage
+- **JWT auth** — protected admin area
+- **Vercel Blob** — media uploads in production
 - **TipTap** — rich text editor for the admin
 
 ## Run locally
@@ -27,23 +28,46 @@ Default admin login (after seed): `admin@shankies.local` / `changeme`
 
 ## Deploy on Vercel
 
-1. Import the GitHub repo at [vercel.com](https://vercel.com)
-2. Set **Production branch** to `main`
-3. Add these **Environment Variables** in Vercel → Project → Settings → Environment Variables:
+Login works with env vars alone, but **posts and media uploads need persistent storage** on Vercel. Set up Turso + Vercel Blob once:
+
+### 1. Create a Turso database (stores posts)
+
+1. Sign up at [turso.tech](https://turso.tech) (free tier is fine)
+2. Create a database named `shankies`
+3. Open the database → **Connect** → copy:
+   - `DATABASE_URL` (starts with `libsql://`)
+   - `DATABASE_AUTH_TOKEN`
+
+### 2. Create Vercel Blob storage (stores uploaded images)
+
+1. In Vercel → your project → **Storage** → **Create Database** → **Blob**
+2. Connect it to your project — Vercel adds `BLOB_READ_WRITE_TOKEN` automatically
+
+### 3. Add environment variables
+
+In Vercel → Project → **Settings** → **Environment Variables**:
 
 | Variable | Value |
 |---|---|
-| `DATABASE_URL` | `file:./prisma/dev.db` |
-| `AUTH_SECRET` | output of `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | your Vercel URL, e.g. `https://shreya-s-blog-dnw7.vercel.app` |
+| `DATABASE_URL` | your Turso `libsql://...` URL |
+| `DATABASE_AUTH_TOKEN` | your Turso auth token |
+| `BLOB_READ_WRITE_TOKEN` | added automatically when Blob is connected |
+| `AUTH_SECRET` | any long random secret |
+| `NEXTAUTH_URL` | your site URL, e.g. `https://shreya-s-blog-dnw7.vercel.app` |
 | `ADMIN_EMAIL` | your admin login email |
 | `ADMIN_PASSWORD` | your admin login password |
 
-4. **Redeploy with build cache cleared** (Vercel → Deployments → ⋯ → Redeploy → uncheck “Use existing Build Cache”).
-5. Sign in at `/admin` using the exact `ADMIN_EMAIL` and `ADMIN_PASSWORD` values from step 3.
-6. If login still fails, open `/api/health` on your site — it will show which env vars are missing.
+### 4. Deploy
 
-> **Note:** On Vercel, SQLite runs from `/tmp` at runtime so login and the CMS can work without an external database. Content may still reset across cold starts or redeploys. For a permanent production site, switch to Postgres (Neon/Supabase) later.
+Redeploy with **build cache cleared** (Deployments → ⋯ → Redeploy → uncheck “Use existing Build Cache”).
+
+### 5. Verify
+
+1. Open `/api/health` — `ok` should be `true`, `databaseMode` should be `turso`, `storageMode` should be `vercel-blob`
+2. Sign in at `/admin`
+3. Upload media and publish a post
+
+> **Why?** Vercel serverless functions cannot share a local SQLite file or write to `public/uploads/`. Turso and Blob give the CMS real persistent storage.
 
 ## Public site
 
