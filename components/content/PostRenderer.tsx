@@ -160,7 +160,9 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
 
   return (
     <article className="paper-card p-6 sm:p-10 -rotate-[0.2deg] relative overflow-visible">
-      <Sticker className="absolute -top-4 -right-2 anim-wiggle" size="text-3xl" rotate={12}>★</Sticker>
+      <div className="absolute -top-6 -right-4 anim-wiggle">
+        <Starburst color="#ffe135" border="#e6007e" rotate={8}>NEW!!</Starburst>
+      </div>
       {post.coverImage && (
         <div className="mb-6 -mx-2 sm:-mx-4 overflow-hidden border-4 border-white shadow-lg rotate-1">
           <img src={post.coverImage.url} alt={post.title} className="w-full max-h-80 object-cover" />
