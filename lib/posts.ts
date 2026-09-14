@@ -1,6 +1,15 @@
 import { ContentType, PostStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "./prisma";
 
+function isMissingTableError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "P2021"
+  );
+}
+
 export type PostWithRelations = Prisma.PostGetPayload<{
   include: {
     coverImage: true;
@@ -23,7 +32,8 @@ export async function getPublishedPosts(options?: {
   categorySlug?: string;
 }) {
   const { type, limit, categorySlug } = options ?? {};
-  return prisma.post.findMany({
+  try {
+  return await prisma.post.findMany({
     where: {
       status: PostStatus.PUBLISHED,
       ...(type ? { type } : {}),
@@ -35,33 +45,52 @@ export async function getPublishedPosts(options?: {
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     ...(limit ? { take: limit } : {}),
   });
+  } catch (error) {
+    if (isMissingTableError(error)) return [];
+    throw error;
+  }
 }
 
 export async function getPostBySlug(slug: string, publishedOnly = true) {
-  return prisma.post.findFirst({
+  try {
+  return await prisma.post.findFirst({
     where: {
       slug,
       ...(publishedOnly ? { status: PostStatus.PUBLISHED } : {}),
     },
     include: postInclude,
   });
+  } catch (error) {
+    if (isMissingTableError(error)) return null;
+    throw error;
+  }
 }
 
 export async function getLatestByType(type: ContentType) {
-  return prisma.post.findFirst({
+  try {
+  return await prisma.post.findFirst({
     where: { type, status: PostStatus.PUBLISHED },
     include: postInclude,
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
   });
+  } catch (error) {
+    if (isMissingTableError(error)) return null;
+    throw error;
+  }
 }
 
 export async function getSiteSetting<T>(key: string, fallback: T): Promise<T> {
-  const row = await prisma.siteSetting.findUnique({ where: { key } });
-  if (!row) return fallback;
   try {
-    return JSON.parse(row.value) as T;
-  } catch {
-    return fallback;
+    const row = await prisma.siteSetting.findUnique({ where: { key } });
+    if (!row) return fallback;
+    try {
+      return JSON.parse(row.value) as T;
+    } catch {
+      return fallback;
+    }
+  } catch (error) {
+    if (isMissingTableError(error)) return fallback;
+    throw error;
   }
 }
 

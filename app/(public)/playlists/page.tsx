@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { ContentType } from "@/generated/prisma/client";
 import { PageHeader } from "@/components/ui/PageHeader";

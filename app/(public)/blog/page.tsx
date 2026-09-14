@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { ContentType } from "@/generated/prisma/client";
 import { getPublishedPosts } from "@/lib/posts";
 import { PostList } from "@/components/content/PostRenderer";
