@@ -15,14 +15,8 @@ function isMissingTableError(error: unknown): boolean {
   return false;
 }
 
-export type PostWithRelations = Prisma.PostGetPayload<{
-  include: {
-    coverImage: true;
-    categories: true;
-    tags: true;
-    mediaItems: { include: { media: true }; orderBy: { sortOrder: "asc" } };
-  };
-}>;
+export type { PostWithRelations } from "./post-types";
+import type { PostWithRelations } from "./post-types";
 
 const postInclude = {
   coverImage: true,
@@ -51,9 +45,8 @@ export async function getPublishedPosts(options?: {
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     ...(limit ? { take: limit } : {}),
   });
-  } catch (error) {
-    if (isMissingTableError(error)) return [];
-    throw error;
+  } catch {
+    return [];
   }
 }
 
@@ -67,9 +60,8 @@ export async function getPostBySlug(slug: string, publishedOnly = true) {
     },
     include: postInclude,
   });
-  } catch (error) {
-    if (isMissingTableError(error)) return null;
-    throw error;
+  } catch {
+    return null;
   }
 }
 
@@ -81,9 +73,8 @@ export async function getLatestByType(type: ContentType) {
     include: postInclude,
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
   });
-  } catch (error) {
-    if (isMissingTableError(error)) return null;
-    throw error;
+  } catch {
+    return null;
   }
 }
 
@@ -97,9 +88,8 @@ export async function getSiteSetting<T>(key: string, fallback: T): Promise<T> {
     } catch {
       return fallback;
     }
-  } catch (error) {
-    if (isMissingTableError(error)) return fallback;
-    throw error;
+  } catch {
+    return fallback;
   }
 }
 
@@ -111,18 +101,4 @@ export async function setSiteSetting(key: string, value: unknown) {
   });
 }
 
-export function parsePostMetadata<T>(metadata: string, fallback: T): T {
-  try {
-    return JSON.parse(metadata) as T;
-  } catch {
-    return fallback;
-  }
-}
-
-export function parsePostContent(content: string) {
-  try {
-    return JSON.parse(content);
-  } catch {
-    return { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: content }] }] };
-  }
-}
+export { parsePostMetadata, parsePostContent } from "./post-utils";

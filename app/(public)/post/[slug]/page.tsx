@@ -1,18 +1,10 @@
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-import { connection } from "next/server";
-import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPostBySlug } from "@/lib/posts";
-import { PostSpread } from "@/components/content/PostRenderer";
+import { CmsPostView } from "@/components/content/CmsPostView";
+
 type Params = { params: Promise<{ slug: string }> };
 
 export default async function PostPage({ params }: Params) {
-  await connection();
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
-  if (!post) notFound();
 
   return (
     <div className="relative py-4">
@@ -22,7 +14,7 @@ export default async function PostPage({ params }: Params) {
       >
         ← back home
       </Link>
-      <PostSpread post={post} />
+      <CmsPostView slug={slug} />
     </div>
   );
 }

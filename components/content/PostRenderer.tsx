@@ -1,7 +1,8 @@
-import { ContentType } from "@/generated/prisma/client";
+"use client";
+
 import Link from "next/link";
-import type { PostWithRelations } from "@/lib/posts";
-import { parsePostContent, parsePostMetadata } from "@/lib/posts";
+import type { PostWithRelations } from "@/lib/post-types";
+import { parsePostContent, parsePostMetadata } from "@/lib/post-utils";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { Sticker, WordSticker } from "@/components/ui/Sticker";
 import { Polaroid } from "@/components/ui/Polaroid";
@@ -75,7 +76,7 @@ export function PostCard({ post }: { post: PostWithRelations }) {
 export function PostSpread({ post }: { post: PostWithRelations }) {
   const meta = parsePostMetadata<Record<string, string>>(post.metadata, {});
 
-  if (post.type === ContentType.DIARY) {
+  if (post.type === "DIARY") {
     return (
       <article className="relative">
         <div className="paper-card p-6 sm:p-10 -rotate-[0.5deg] bg-[#fffef8] border-4 border-white shadow-xl"
@@ -95,7 +96,7 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
     );
   }
 
-  if (post.type === ContentType.PHOTO_DUMP || post.type === ContentType.MOODBOARD) {
+  if (post.type === "PHOTO_DUMP" || post.type === "MOODBOARD") {
     const images = post.mediaItems.map((m) => m.media);
     return (
       <article>
@@ -128,7 +129,7 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
     );
   }
 
-  if (post.type === ContentType.PLAYLIST) {
+  if (post.type === "PLAYLIST") {
     return (
       <article className="paper-card p-6 sm:p-8 -rotate-[0.3deg]">
         <div className="flex items-start gap-6">
