@@ -25,7 +25,7 @@ function LoginForm() {
 
     setLoading(false);
     if (result?.error) {
-      setError("Invalid email or password");
+      setError("Invalid email or password. Use the exact ADMIN_EMAIL and ADMIN_PASSWORD from your Vercel env vars.");
       return;
     }
 
