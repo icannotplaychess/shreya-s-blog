@@ -1,0 +1,267 @@
+IMPORTANT: This must be a REAL, FUNCTIONAL BLOGGING PLATFORM
+
+Shankie's should not just be a collection of pre-made mockup pages.
+
+I should be able to use the website myself and continuously add new content without editing the source code.
+
+Think of it as my personal digital magazine + blog + scrapbook CMS.
+
+I need an admin/dashboard system where I can create, edit, publish, draft, and delete content.
+
+Blog creation
+
+I should be able to:
+
+Create a new blog post
+Give it a title
+Add a cover image
+Write the article
+Format text
+Add headings
+Add images between paragraphs
+Add videos
+Add GIFs
+Add links
+Add quotes
+Add captions
+Add stickers/decorations
+Add tags/categories
+Set a publication date
+Save as draft
+Preview before publishing
+Publish
+Edit existing posts
+Delete posts
+
+The blog editor should not look like a boring corporate CMS.
+
+The editor itself can be relatively practical, but the final published article must automatically use the Shankie's magazine/scrapbook aesthetic.
+
+MEDIA UPLOADS
+
+I need to be able to upload my own media.
+
+Support:
+
+JPG
+PNG
+WEBP
+GIF
+MP4
+audio files
+PDFs where appropriate
+
+I should be able to upload:
+
+photographs
+scans of diary pages
+magazine clippings
+artwork
+screenshots
+moodboards
+videos
+music/audio
+stickers
+GIFs
+
+Create a Media Library where I can see everything I've uploaded and reuse media in different posts.
+
+Images should automatically be optimized and displayed properly without requiring me to manually code anything.
+
+DIFFERENT TYPES OF CONTENT
+
+Don't restrict the site to traditional blog posts.
+
+I should be able to create different content types such as:
+
+Blog Post
+
+Long-form writing, essays, stories, reflections, etc.
+
+Photo Dump
+
+A scrapbook-style gallery where I can upload multiple photographs and arrange them into a collage.
+
+Playlist
+
+Songs + album covers + descriptions + embedded music.
+
+Diary Entry
+
+A more personal journal format with date, mood, photos, stickers and handwritten-style elements.
+
+List
+
+For example:
+
+Things I Loved This Month
+10 Songs on Repeat
+Books I've Read
+Places I Want to Visit
+Quiz
+
+Create magazine-style quizzes with questions, answers and results.
+
+Moodboard
+
+Upload images and arrange them into a collage.
+
+Collection
+
+Create collections such as:
+
+"Things From My Childhood"
+
+"Favourite Bollywood Songs"
+
+"My 2000s Obsessions"
+
+"My Art"
+
+"My Bookshelf"
+
+etc.
+
+The architecture should make it easy to add more content types later.
+
+ADMIN DASHBOARD
+
+Create a /admin or similar private dashboard.
+
+It should have:
+
+Dashboard
+
+Recent posts
+Drafts
+Published posts
+Media count
+Quick Create button
+
+Posts
+
+All posts
+Drafts
+Published
+Create New
+
+Media
+
+Upload media
+Browse media
+Search media
+Delete media
+
+Categories
+
+Create/edit categories
+
+Site customization
+
+Allow me to change things like:
+
+Homepage featured post
+Current song
+Mood
+Quote
+About Me information
+Favourite things
+Featured photos
+Stickers
+Homepage sections
+DATABASE / PERSISTENCE
+
+The content must actually be saved.
+
+Do NOT build this using hardcoded arrays containing fake blog posts.
+
+Use a proper database/backend so that when I create a post, it remains there after refreshing the page.
+
+Structure the application so it can eventually be deployed publicly.
+
+Use appropriate authentication so only I can access the admin dashboard.
+
+The public-facing website should be accessible to visitors without them having access to the admin area.
+
+HOMEPAGE SHOULD UPDATE AUTOMATICALLY
+
+The homepage should pull content from the database.
+
+For example:
+
+LATEST FROM SHANKIE'S
+
+Automatically display my newest published posts.
+
+PHOTO DUMP
+
+Automatically display my latest photo dump.
+
+CURRENTLY OBSESSED WITH
+
+Editable from the dashboard.
+
+SONG OF THE WEEK
+
+Editable from the dashboard.
+
+RECENTLY
+
+Automatically show recent diary/blog entries.
+
+So I can simply log into the dashboard, create something, publish it, and the website updates automatically.
+
+MOST IMPORTANT DESIGN PRINCIPLE
+
+Separate the CONTENT SYSTEM from the VISUAL SYSTEM.
+
+I should be able to write a completely normal blog post in the admin panel, but when someone views it, it should look like it belongs inside an early-2000s teen magazine.
+
+For example:
+
+Admin:
+
+Title: Things I Did This Summer
+
+Text: ...
+Images: summer1.jpg, summer2.jpg, summer3.jpg
+Category: Life
+Tags: summer, friends, 2026
+Publish
+
+↓
+
+Public website:
+
+A chaotic, beautiful magazine spread with:
+
+giant colourful title
+taped photographs
+handwritten annotations
+arrows
+stickers
+doodles
+captions
+little "OMG!" graphics
+Y2K borders
+Indian 2000s-inspired decorative elements
+
+The content comes from me, while the website provides the visual language.
+
+DO NOT MAKE THESE MISTAKES
+
+Do NOT:
+
+make a static portfolio
+hardcode all the posts
+use lorem ipsum
+make fake buttons that don't work
+make fake upload interfaces
+create only a visual mockup
+require me to edit code whenever I want to publish something
+make it look like a modern Medium/Substack blog
+make the admin panel inaccessible to a non-coder
+
+I should be able to sit down, log in, click "New Post", upload my photos, write something, click Publish, and immediately see it appear on Shankie's.
+
+The website is the magazine. I am the editor.
