@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum ContentType {
+  BLOG
+  DIARY
+  PHOTO_DUMP
+  PLAYLIST
+  LIST
+  QUIZ
+  MOODBOARD
+  COLLECTION
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Post {
+  id           String      @id @default(cuid())
+  title        String
+  slug         String      @unique
+  excerpt      String?
+  content      String      @default("{}")
+  type         ContentType @default(BLOG)
+  status       PostStatus  @default(DRAFT)
+  coverImageId String?
+  coverImage   Media?      @relation("PostCover", fields: [coverImageId], references: [id], onDelete: SetNull)
+  metadata     String      @default("{}")
+  publishedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  categories   Category[]  @relation("PostCategories")
+  tags         Tag[]       @relation("PostTags")
+  mediaItems   PostMedia[]
+}
+
+model PostMedia {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaId   String
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  sortOrder Int      @default(0)
+  caption   String?
+  createdAt DateTime @default(now())
+
+  @@unique([postId, mediaId])
+}
+
+model Media {
+  id           String      @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  alt          String?
+  width        Int?
+  height       Int?
+  createdAt    DateTime    @default(now())
+  postCovers   Post[]      @relation("PostCover")
+  postMedia    PostMedia[]
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  posts       Post[]  @relation("PostCategories")
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String
+  slug  String @unique
+  posts Post[] @relation("PostTags")
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model GuestbookEntry {
+  id        String   @id @default(cuid())
+  name      String
+  message   String
+  approved  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
