@@ -36,13 +36,13 @@ Default admin login (after seed): `admin@shankies.local` / `changeme`
 | `DATABASE_URL` | `file:./prisma/dev.db` |
 | `AUTH_SECRET` | output of `openssl rand -base64 32` |
 | `NEXTAUTH_URL` | your Vercel URL, e.g. `https://shreya-s-blog-dnw7.vercel.app` |
-| `ADMIN_EMAIL` | your admin email |
-| `ADMIN_PASSWORD` | your admin password |
+| `ADMIN_EMAIL` | your admin login email |
+| `ADMIN_PASSWORD` | your admin login password |
 
-4. **Redeploy with build cache cleared** (Vercel → Deployments → ⋯ → Redeploy → uncheck “Use existing Build Cache”). The build runs `prisma migrate deploy` automatically to create database tables.
-5. After first successful deploy, run the seed once locally against production or add content via `/admin`.
+4. **Redeploy with build cache cleared** (Vercel → Deployments → ⋯ → Redeploy → uncheck “Use existing Build Cache”).
+5. Sign in at `/admin` using the exact `ADMIN_EMAIL` and `ADMIN_PASSWORD` values from step 3.
 
-> **Note:** SQLite on Vercel is fine for getting started, but data resets on redeploys. For a permanent production site, switch to Postgres (Neon/Supabase) later.
+> **Note:** On Vercel, SQLite runs from `/tmp` at runtime so login and the CMS can work without an external database. Content may still reset across cold starts or redeploys. For a permanent production site, switch to Postgres (Neon/Supabase) later.
 
 ## Public site
 
