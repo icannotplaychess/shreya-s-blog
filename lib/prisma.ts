@@ -2,16 +2,17 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { ensureRuntimeDatabase } from "./bootstrap-db";
-import { getConfiguredDatabaseUrl, isLibsqlDatabase } from "./database-url";
+import { getConfiguredDatabaseUrl, getRemoteDatabaseUrl, isLibsqlDatabase } from "./database-url";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function createPrismaClient() {
+  const remoteUrl = getRemoteDatabaseUrl();
   const configured = getConfiguredDatabaseUrl();
 
-  if (isLibsqlDatabase(configured)) {
+  if (remoteUrl && isLibsqlDatabase(remoteUrl)) {
     const adapter = new PrismaLibSql({
-      url: configured,
+      url: remoteUrl,
       authToken: process.env.DATABASE_AUTH_TOKEN ?? process.env.TURSO_AUTH_TOKEN,
     });
     return new PrismaClient({ adapter });

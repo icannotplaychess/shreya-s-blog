@@ -8,12 +8,21 @@ function isVercelRuntime(): boolean {
   );
 }
 
+export function getRemoteDatabaseUrl(): string | undefined {
+  const turso = process.env.TURSO_DATABASE_URL?.trim();
+  if (turso) return turso;
+
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (databaseUrl && isLibsqlDatabase(databaseUrl)) return databaseUrl;
+
+  return undefined;
+}
+
 export function getConfiguredDatabaseUrl(): string {
-  return (
-    process.env.DATABASE_URL?.trim() ||
-    process.env.TURSO_DATABASE_URL?.trim() ||
-    DEFAULT_SQLITE_URL
-  );
+  const remote = getRemoteDatabaseUrl();
+  if (remote) return remote;
+
+  return process.env.DATABASE_URL?.trim() || DEFAULT_SQLITE_URL;
 }
 
 export function isLibsqlDatabase(url: string): boolean {
