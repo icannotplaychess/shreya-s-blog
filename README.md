@@ -35,8 +35,8 @@ Login works with env vars alone, but **posts and media uploads need persistent s
 1. Sign up at [turso.tech](https://turso.tech) (free tier is fine)
 2. Create a database named `shankies`
 3. Open the database → **Connect** → copy:
-   - `DATABASE_URL` (must start with `libsql://` — not `https://`)
-   - `DATABASE_AUTH_TOKEN`
+   - `libsql://...` URL (not the `https://` one)
+   - auth token
 
 ### 2. Create Vercel Blob storage (stores uploaded images)
 
@@ -49,13 +49,15 @@ In Vercel → Project → **Settings** → **Environment Variables**:
 
 | Variable | Value |
 |---|---|
-| `DATABASE_URL` | your Turso `libsql://...` URL |
+| `TURSO_DATABASE_URL` | your Turso `libsql://...` URL |
 | `DATABASE_AUTH_TOKEN` | your Turso auth token |
 | `BLOB_READ_WRITE_TOKEN` | added automatically when Blob is connected |
 | `AUTH_SECRET` | any long random secret |
 | `NEXTAUTH_URL` | your site URL, e.g. `https://shreya-s-blog-dnw7.vercel.app` |
 | `ADMIN_EMAIL` | your admin login email |
 | `ADMIN_PASSWORD` | your admin login password |
+
+**Important:** Delete `DATABASE_URL` from Vercel if you previously set it to `libsql://...` or `file:./prisma/dev.db`. Use `TURSO_DATABASE_URL` instead — this avoids Prisma build errors.
 
 ### 4. Deploy
 
