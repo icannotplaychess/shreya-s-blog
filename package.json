@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && node scripts/verify-db.mjs && prisma generate && tsx scripts/ensure-admin.ts && next build",
+    "build": "prisma generate && node scripts/migrate-remote.mjs && prisma migrate deploy && node scripts/verify-db.mjs && tsx scripts/ensure-admin.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",

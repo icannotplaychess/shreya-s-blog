@@ -35,7 +35,7 @@ Login works with env vars alone, but **posts and media uploads need persistent s
 1. Sign up at [turso.tech](https://turso.tech) (free tier is fine)
 2. Create a database named `shankies`
 3. Open the database → **Connect** → copy:
-   - `DATABASE_URL` (starts with `libsql://`)
+   - `DATABASE_URL` (must start with `libsql://` — not `https://`)
    - `DATABASE_AUTH_TOKEN`
 
 ### 2. Create Vercel Blob storage (stores uploaded images)

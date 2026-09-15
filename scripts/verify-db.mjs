@@ -8,7 +8,7 @@ import path from "path";
 const dbUrl = process.env.DATABASE_URL ?? process.env.TURSO_DATABASE_URL ?? "file:./prisma/dev.db";
 
 if (!dbUrl.startsWith("file:")) {
-  console.log(`✓ Using remote database (${dbUrl.split("://")[0]})`);
+  console.log(`✓ Using remote database (${dbUrl.split("://")[0]}), local file verification skipped`);
   process.exit(0);
 }
 
