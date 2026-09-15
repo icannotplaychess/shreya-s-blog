@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unlink } from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
+import { deleteStoredFile } from "@/lib/storage";
+
+export const runtime = "nodejs";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -22,7 +23,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   }
 
   try {
-    await unlink(path.join(process.cwd(), "public", media.url));
+    await deleteStoredFile(media.url);
   } catch {
     // file may already be gone
   }

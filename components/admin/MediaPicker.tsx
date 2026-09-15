@@ -19,6 +19,7 @@ export function MediaPicker({
   const [media, setMedia] = useState<Media[]>([]);
   const [q, setQ] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/media?q=${encodeURIComponent(q)}`);
@@ -33,14 +34,22 @@ export function MediaPicker({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setError("");
     const form = new FormData();
     form.append("file", file);
-    const res = await fetch("/api/media", { method: "POST", body: form });
-    setUploading(false);
-    if (res.ok) {
-      const uploaded = await res.json();
-      setMedia((prev) => [uploaded, ...prev]);
-      onSelect(uploaded);
+    try {
+      const res = await fetch("/api/media", { method: "POST", body: form });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Upload failed");
+        return;
+      }
+      setMedia((prev) => [data, ...prev]);
+      onSelect(data);
+    } catch {
+      setError("Could not upload file. Check that Vercel Blob is configured.");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -51,6 +60,9 @@ export function MediaPicker({
           <h2 className="font-semibold">Media Library</h2>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700">✕</button>
         </div>
+        {error && (
+          <div className="mx-4 mt-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>
+        )}
         <div className="p-4 border-b border-slate-200 flex gap-3">
           <input
             value={q}

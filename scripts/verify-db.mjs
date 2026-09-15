@@ -5,8 +5,14 @@ import "dotenv/config";
 import Database from "better-sqlite3";
 import path from "path";
 
-const dbUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-const dbPath = dbUrl.startsWith("file:") ? dbUrl.slice(5) : dbUrl;
+const dbUrl = process.env.DATABASE_URL ?? process.env.TURSO_DATABASE_URL ?? "file:./prisma/dev.db";
+
+if (!dbUrl.startsWith("file:")) {
+  console.log(`✓ Using remote database (${dbUrl.split("://")[0]})`);
+  process.exit(0);
+}
+
+const dbPath = dbUrl.slice(5);
 const resolvedPath = path.resolve(process.cwd(), dbPath);
 
 const requiredTables = ["User", "Post", "Media", "SiteSetting"];

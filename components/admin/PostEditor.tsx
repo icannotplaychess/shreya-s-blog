@@ -9,6 +9,7 @@ import { CONTENT_TYPES, POST_STATUSES, type ContentTypeValue, type PostStatusVal
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MediaPicker } from "./MediaPicker";
+import { formatApiError } from "@/lib/api-errors";
 
 interface Category { id: string; name: string }
 interface Tag { id: string; name: string }
@@ -120,13 +121,17 @@ export function PostEditor({
         body: JSON.stringify(payload),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error?.message || "Failed to save");
+        throw new Error(formatApiError(data.error ?? data));
       }
 
-      const post = await res.json();
-      router.push(`/admin/posts/${post.id}/edit`);
+      if (!data.id) {
+        throw new Error("Post saved but the server did not return an id. Check your database setup.");
+      }
+
+      router.push(`/admin/posts/${data.id}/edit`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");

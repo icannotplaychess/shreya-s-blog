@@ -15,6 +15,7 @@ export default function AdminMediaPage() {
   const [media, setMedia] = useState<Media[]>([]);
   const [q, setQ] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/media?q=${encodeURIComponent(q)}`);
@@ -29,13 +30,24 @@ export default function AdminMediaPage() {
     const files = e.target.files;
     if (!files?.length) return;
     setUploading(true);
-    for (const file of Array.from(files)) {
-      const form = new FormData();
-      form.append("file", file);
-      await fetch("/api/media", { method: "POST", body: form });
+    setError("");
+    try {
+      for (const file of Array.from(files)) {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch("/api/media", { method: "POST", body: form });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(data.error || `Failed to upload ${file.name}`);
+          return;
+        }
+      }
+      await load();
+    } catch {
+      setError("Could not upload files. Check that Vercel Blob is configured.");
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
-    load();
   }
 
   async function handleDelete(id: string) {
@@ -63,6 +75,8 @@ export default function AdminMediaPage() {
           />
         </label>
       </div>
+
+      {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
       <input
         value={q}
