@@ -1,10 +1,10 @@
 import { CmsPostFeed } from "@/components/content/CmsPostFeed";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { EditablePageHeader } from "@/components/ui/EditablePageHeader";
 
 export default function BlogPage() {
   return (
     <div className="py-4">
-      <PageHeader title="Blog" subtitle="essays, stories & random thoughts ~" />
+      <EditablePageHeader page="blog" />
       <CmsPostFeed type="BLOG" title="LATEST FROM SHANKIE'S" />
     </div>
   );

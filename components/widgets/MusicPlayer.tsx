@@ -2,32 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { resolveMediaUrl } from "@/lib/media-url";
-import { DEFAULT_MUSIC_PLAYER_TRACKS, type MusicPlayerTrack } from "@/lib/site-content-defaults";
+import type { MusicPlayerTrack } from "@/lib/site-content";
 
 function midiToFreq(n: number) {
   return 440 * Math.pow(2, (n - 69) / 12);
 }
 
 export function MusicPlayer({ className = "" }: { className?: string }) {
-  const [tracks, setTracks] = useState<MusicPlayerTrack[]>(DEFAULT_MUSIC_PLAYER_TRACKS);
+  const { musicPlayer, sidebar } = useSiteContent();
+  const tracks = musicPlayer.tracks;
   const [trackIdx, setTrackIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [step, setStep] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ctxRef = useRef<AudioContext | null>(null);
   const stepRef = useRef(0);
-
-  useEffect(() => {
-    fetch("/api/public/settings")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data.musicPlayer?.tracks) && data.musicPlayer.tracks.length > 0) {
-          setTracks(data.musicPlayer.tracks);
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   const track = tracks[trackIdx] ?? tracks[0];
   const hasAudio = Boolean(track?.audioUrl);
@@ -95,7 +86,7 @@ export function MusicPlayer({ className = "" }: { className?: string }) {
       className={`rounded-2xl border-[3px] border-inkberry bg-gradient-to-b from-[#2b1d3a] to-[#120a1c] p-3 shadow-[5px_6px_0_rgba(61,18,48,0.45)] ${className}`}
     >
       <p className="font-pixel text-[8px] text-turq mb-2 tracking-wider">
-        ♫ SHANKIE&apos;S PROFILE SONG PLAYER v2.0 ♫
+        ♫ {sidebar.musicPlayerTitle} ♫
       </p>
 
       {hasAudio && (

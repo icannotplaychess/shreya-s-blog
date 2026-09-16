@@ -4,20 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
-
-const TABS: { href: string; label: string; icon: string }[] = [
-  { href: "/", label: "Home", icon: "🏠" },
-  { href: "/blog", label: "Blog", icon: "📝" },
-  { href: "/diary", label: "Diary", icon: "📔" },
-  { href: "/photo-dump", label: "Photo Dump", icon: "📸" },
-  { href: "/playlists", label: "Playlists", icon: "🎧" },
-  { href: "/quizzes", label: "Quizzes", icon: "❓" },
-  { href: "/style", label: "Style Files", icon: "👛" },
-  { href: "/girlhood", label: "Girlhood", icon: "🎀" },
-  { href: "/collections", label: "Collections", icon: "🍬" },
-  { href: "/guestbook", label: "Guestbook", icon: "✍️" },
-  { href: "/about", label: "About Me", icon: "💖" },
-];
+import { useSiteContent } from "@/components/providers/SiteContentProvider";
 
 const TAB_COLORS = [
   "from-hotpink to-magenta",
@@ -32,18 +19,18 @@ const TAB_COLORS = [
   "from-hotpink to-lilac",
 ];
 
-/** MySpace-style chunky gradient tab bar, wraps on small screens. */
 export function Nav() {
+  const { chrome } = useSiteContent();
+  const { nav } = chrome;
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-30 border-b-4 border-white bg-gradient-to-r from-babypink/95 via-lilac/90 to-babypink/95 backdrop-blur-sm shadow-lg">
       <div className="max-w-6xl mx-auto px-2 sm:px-4">
-        {/* mobile toggle */}
         <div className="flex sm:hidden items-center justify-between py-2">
           <Link href="/" className="font-pacifico text-xl text-magenta bubble-shadow">
-            Shankie&apos;s ✿
+            {nav.brand}
           </Link>
           <button
             onClick={() => setOpen((v) => !v)}
@@ -51,14 +38,11 @@ export function Nav() {
             aria-expanded={open}
             aria-label="Toggle navigation menu"
           >
-            {open ? "close ✖" : "menu ☰"}
+            {open ? nav.menuClose : nav.menuOpen}
           </button>
         </div>
-
-        <ul
-          className={`${open ? "flex" : "hidden"} sm:flex flex-wrap justify-center gap-1.5 sm:gap-2 py-2`}
-        >
-          {TABS.map((tab, i) => {
+        <ul className={`${open ? "flex" : "hidden"} sm:flex flex-wrap justify-center gap-1.5 sm:gap-2 py-2`}>
+          {nav.tabs.map((tab, i) => {
             const active = pathname === tab.href;
             return (
               <li key={tab.href}>

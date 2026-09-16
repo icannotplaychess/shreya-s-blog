@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { Hero } from "@/components/home/Hero";
 import { WhatsInMyBag } from "@/components/home/WhatsInMyBag";
 import { SectionTeasers } from "@/components/home/SectionTeasers";
@@ -24,33 +24,12 @@ import { Polaroid } from "@/components/ui/Polaroid";
 import { DoodlePhoto } from "@/components/ui/DoodlePhoto";
 import { CmsHomeSections } from "@/components/content/CmsHomeSections";
 
-interface HomepageSettings {
-  tagline?: string;
-  subtitle?: string;
-  currentObsession?: string;
-  songOfTheWeek?: { title: string; artist: string; note: string };
-  mood?: string;
-  quote?: string;
-  welcomeMessage?: string;
-}
-
 export function CmsHomePage() {
-  const [settings, setSettings] = useState<HomepageSettings>({});
-
-  useEffect(() => {
-    fetch("/api/public/settings")
-      .then((r) => r.json())
-      .then((data) => setSettings(data.homepage ?? {}))
-      .catch(() => {});
-  }, []);
-
-  const welcome =
-    settings.welcomeMessage ||
-    "heyyy u found my website!! i like SRK movies, gel pens, radio mirchi & collecting tazos from lays packets.";
+  const { homepage } = useSiteContent();
 
   return (
     <div className="relative">
-      <Hero tagline={settings.tagline} subtitle={settings.subtitle} />
+      <Hero tagline={homepage.tagline} subtitle={homepage.subtitle} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
         <div className="space-y-8 min-w-0">
@@ -60,33 +39,22 @@ export function CmsHomePage() {
               <div className="flex-1 min-w-0">
                 <SpeechBubble color="#fff9ae" rotate={-1} className="mb-5">
                   <p className="font-chewy text-lg sm:text-xl text-inkberry">
-                    heyyy u found my website!! <span className="anim-blink text-hotpink">♥</span>
+                    {homepage.welcomeHeading} <span className="anim-blink text-hotpink">♥</span>
                   </p>
-                  <p className="font-comic text-sm text-inkberry/90 mt-1">{welcome}</p>
+                  <p className="font-comic text-sm text-inkberry/90 mt-1">{homepage.welcomeMessage}</p>
                 </SpeechBubble>
                 <div className="flex flex-wrap gap-2 items-center">
-                  <Link
-                    href="/guestbook"
-                    className="glossy inline-block px-5 py-2 font-lucky text-sm text-white bg-gradient-to-b from-hotpink to-magenta"
-                  >
-                    ✍️ sign my guestbook!!
+                  <Link href="/guestbook" className="glossy inline-block px-5 py-2 font-lucky text-sm text-white bg-gradient-to-b from-hotpink to-magenta">
+                    {homepage.guestbookCta}
                   </Link>
-                  <Link
-                    href="/about"
-                    className="glossy inline-block px-5 py-2 font-lucky text-sm text-inkberry bg-gradient-to-b from-lemon to-tangerine"
-                  >
-                    💖 about me
+                  <Link href="/about" className="glossy inline-block px-5 py-2 font-lucky text-sm text-inkberry bg-gradient-to-b from-lemon to-tangerine">
+                    {homepage.aboutCta}
                   </Link>
                   <WordSticker text="cute!!" palette={5} rotate={-8} />
                 </div>
               </div>
               <div className="mx-auto md:mx-0 shrink-0 flex flex-col gap-3">
-                <Polaroid
-                  photo={<DoodlePhoto kind="butterfly" />}
-                  caption="me (artist's impression)"
-                  rotate={4}
-                  className="w-40"
-                />
+                <Polaroid photo={<DoodlePhoto kind="butterfly" />} caption={homepage.polaroidCaption} rotate={4} className="w-40" />
                 <Sticker className="self-end anim-wiggle" size="text-3xl" rotate={-10}>🧿</Sticker>
               </div>
             </div>
@@ -98,9 +66,7 @@ export function CmsHomePage() {
 
           <div className="relative">
             <div className="flex items-center gap-3 mb-4">
-              <h2 className="font-bangers outline-text text-3xl sm:text-4xl text-grape">
-                pick a page, any page!
-              </h2>
+              <h2 className="font-bangers outline-text text-3xl sm:text-4xl text-grape">{homepage.sectionsHeading}</h2>
               <Sticker size="text-3xl" className="anim-bounce-tiny" rotate={8}>👇</Sticker>
             </div>
             <SectionTeasers />
@@ -109,33 +75,29 @@ export function CmsHomePage() {
           <section aria-label="random notes" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StickyNote color="#ffd1ec" rotate={-3}>
               <p className="font-marker text-sm text-inkberry">
-                {settings.songOfTheWeek?.title
-                  ? `song of the week: ${settings.songOfTheWeek.title} — ${settings.songOfTheWeek.artist}`
+                {homepage.songOfTheWeek?.title
+                  ? `song of the week: ${homepage.songOfTheWeek.title} — ${homepage.songOfTheWeek.artist}`
                   : "song of the week: tbd"}
               </p>
             </StickyNote>
             <StickyNote color="#c9f4ff" rotate={2}>
-              <p className="font-indie text-sm text-inkberry">
-                mood: {settings.mood || "unknown"} 💅
-              </p>
+              <p className="font-indie text-sm text-inkberry">mood: {homepage.mood || homepage.moodStickyFallback} 💅</p>
             </StickyNote>
             <StickyNote color="#fff9ae" rotate={-1}>
-              <p className="font-comic text-sm text-inkberry">
-                {settings.quote || "life is a mystery to be lived, not a problem to be solved"}
-              </p>
+              <p className="font-comic text-sm text-inkberry">{homepage.quote || homepage.quoteStickyFallback}</p>
             </StickyNote>
           </section>
         </div>
 
         <aside className="space-y-4" aria-label="sidebar widgets">
           <MusicPlayer />
-          <StatusMood mood={settings.mood} />
+          <StatusMood mood={homepage.mood} />
           <VisitorCounter />
           <DigitalClock />
-          <QuoteOfTheDay quote={settings.quote} />
+          <QuoteOfTheDay quote={homepage.quote} />
           <PixelPet />
           <BestFriends />
-          <ObsessionWishlist obsession={settings.currentObsession} />
+          <ObsessionWishlist obsession={homepage.currentObsession} />
           <WeatherWidget />
           <CalendarWidget />
           <BlinkieWall />

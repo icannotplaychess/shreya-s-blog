@@ -1,43 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { Polaroid } from "@/components/ui/Polaroid";
 import { DoodlePhoto } from "@/components/ui/DoodlePhoto";
 
-const UPDATES = [
-  {
-    tag: "reading 📖",
-    text: "malory towers (again) + tinkle digest no. 143. suppandi remains the greatest philosopher of our time.",
-    bg: "from-lemon/70 to-tangerine/40",
-  },
-  {
-    tag: "watching 📺",
-    text: "kasautii at 8:30 with amma (i pretend i don't care. i care SO much). also: takeshi's castle dubbed. javed jaffrey deserves an oscar.",
-    bg: "from-cyanpop/50 to-turq/40",
-  },
-  {
-    tag: "learning ✍️",
-    text: "bubble letters (mastered), mehendi peacock (in progress), trigonometry (we don't talk about it).",
-    bg: "from-bubblegum/60 to-lilac/50",
-  },
-  {
-    tag: "waiting for ⏳",
-    text: "the new dhoom to release, my boomer tattoo collection to complete & the class picnic list to go up.",
-    bg: "from-lilac/60 to-babypink",
-  },
-];
-
-/** "Life lately" diary-lite cards + a couple of polaroids. */
 export function LifeLately() {
+  const { girlhood } = useSiteContent();
+  const { lifeLately } = girlhood;
   return (
     <section className="paper-card halftone relative p-4 sm:p-7 rotate-[0.4deg]">
       <span aria-hidden className="washi -top-4 left-8 rotate-[-4deg]" />
-      <CutoutHeading text="LIFE LATELY" size="text-2xl sm:text-4xl" className="mb-5" />
-
+      <CutoutHeading text={lifeLately.heading} size="text-2xl sm:text-4xl" className="mb-5" />
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-          {UPDATES.map((u, i) => (
+          {lifeLately.updates.map((u, i) => (
             <motion.div
               key={u.tag}
               initial={{ opacity: 0, y: 16 }}
@@ -53,8 +31,15 @@ export function LifeLately() {
           ))}
         </div>
         <div className="flex lg:flex-col gap-4 justify-center items-center shrink-0">
-          <Polaroid photo={<DoodlePhoto kind="sunset" />} caption="terrace office" rotate={-4} className="w-36" />
-          <Polaroid photo={<DoodlePhoto kind="chai" />} caption="research fuel" rotate={5} className="w-36" />
+          {lifeLately.polaroids.map((p, i) => (
+            <Polaroid
+              key={p.caption}
+              photo={<DoodlePhoto kind={p.kind as "sunset" | "chai" | "butterfly"} />}
+              caption={p.caption}
+              rotate={i % 2 ? 5 : -4}
+              className="w-36"
+            />
+          ))}
         </div>
       </div>
     </section>
