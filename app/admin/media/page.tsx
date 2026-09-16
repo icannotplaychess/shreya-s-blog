@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 interface Media {
   id: string;
@@ -90,7 +91,7 @@ export default function AdminMediaPage() {
           <div key={m.id} className="bg-white border border-slate-200 rounded-lg overflow-hidden group">
             <div className="aspect-square bg-slate-100">
               {m.mimeType.startsWith("image/") ? (
-                <img src={m.url} alt={m.originalName} className="w-full h-full object-cover" />
+                <img src={resolveMediaUrl(m.url)} alt={m.originalName} className="w-full h-full object-cover" />
               ) : m.mimeType.startsWith("video/") ? (
                 <video src={m.url} className="w-full h-full object-cover" />
               ) : (

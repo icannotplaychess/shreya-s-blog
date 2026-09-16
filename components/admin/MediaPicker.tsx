@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 interface Media {
   id: string;
@@ -83,7 +84,7 @@ export function MediaPicker({
               className="aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-pink-500 bg-slate-100"
             >
               {m.mimeType.startsWith("image/") ? (
-                <img src={m.url} alt={m.originalName} className="w-full h-full object-cover" />
+                <img src={resolveMediaUrl(m.url)} alt={m.originalName} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xs text-slate-500 p-2">
                   {m.originalName}

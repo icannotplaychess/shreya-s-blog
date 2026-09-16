@@ -1,39 +1,34 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Polaroid } from "@/components/ui/Polaroid";
 import { DoodlePhoto } from "@/components/ui/DoodlePhoto";
 import { SpeechBubble } from "@/components/ui/SpeechBubble";
 import { Sticker, WordSticker } from "@/components/ui/Sticker";
+import {
+  DEFAULT_ABOUT_FAQ,
+  DEFAULT_ABOUT_STATS,
+  type AboutFaq,
+  type AboutStat,
+} from "@/lib/site-content-defaults";
 
-const STATS: [string, string][] = [
-  ["name", "shankie (legal name: not ur business hehe)"],
-  ["age", "14¾ (the ¾ is important)"],
-  ["sign", "pisces ♓ (explains everything, says everyone)"],
-  ["school", "the one with the strict uniform checks"],
-  ["fav subject", "art > english > lunch > everything else"],
-  ["fav movie", "kuch kuch hota hai / jab we met (don't make me pick)"],
-  ["fav actor", "SRK. next question."],
-  ["fav actress", "kareena AND preity AND rani (i said don't make me pick)"],
-  ["fav channel", "zoom tv for gossip, pogo for dignity"],
-  ["fav food", "amma's rajma chawal, golgappe (count: unlimited)"],
-  ["hidden talent", "can recite the complete kal ho naa ho dialogue"],
-  ["biggest fear", "the computer teacher checking browser history"],
-];
-
-const FAQ = [
-  { q: "y is the site so pink?", a: "wrong question. y is everything ELSE not this pink?" },
-  { q: "did u really code this urself?", a: "yes!! view-source → notepad → trial & error → crying → glory. raju uncle's café witnessed everything." },
-  { q: "who is the crush the mixtape is for?", a: "next question." },
-  { q: "seriously who—", a: "NEXT. QUESTION." },
-  { q: "will u update regularly?", a: "every week unless exams, power cuts, or a good movie on set max. so... sometimes." },
-];
-
-/** Slam-book style about page: vitals table, polaroid, FAQ. */
 export function AboutMe() {
+  const [stats, setStats] = useState<AboutStat[]>(DEFAULT_ABOUT_STATS);
+  const [faq, setFaq] = useState<AboutFaq[]>(DEFAULT_ABOUT_FAQ);
+
+  useEffect(() => {
+    fetch("/api/public/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.about?.stats)) setStats(data.about.stats);
+        if (Array.isArray(data.about?.faq)) setFaq(data.about.faq);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto space-y-10">
-      {/* slam book vitals */}
       <section className="paper-card relative p-5 sm:p-8 -rotate-[0.4deg]">
         <span aria-hidden className="washi -top-4 left-10 rotate-[-6deg]" />
         <span aria-hidden className="washi washi-candy -top-3 right-12 rotate-[4deg]" />
@@ -50,17 +45,17 @@ export function AboutMe() {
               vital statistics <span className="font-indie text-sm text-inkberry/70">(slam book official)</span>
             </h2>
             <dl className="space-y-1.5">
-              {STATS.map(([k, v], i) => (
+              {stats.map((item, i) => (
                 <motion.div
-                  key={k}
+                  key={`${item.label}-${i}`}
                   initial={{ opacity: 0, x: -14 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-20px" }}
                   transition={{ delay: i * 0.03 }}
                   className="flex gap-2 items-baseline border-b border-dashed border-bubblegum/70 pb-1"
                 >
-                  <dt className="font-chewy text-sm text-grape shrink-0 w-24 sm:w-28">{k}:</dt>
-                  <dd className="font-indie text-sm text-inkberry">{v}</dd>
+                  <dt className="font-chewy text-sm text-grape shrink-0 w-24 sm:w-28">{item.label}:</dt>
+                  <dd className="font-indie text-sm text-inkberry">{item.value}</dd>
                 </motion.div>
               ))}
             </dl>
@@ -68,25 +63,22 @@ export function AboutMe() {
         </div>
       </section>
 
-      {/* FAQ speech bubbles */}
       <section aria-label="frequently asked questions">
         <div className="flex items-center gap-3 flex-wrap mb-5">
           <h2 className="font-bangers outline-text text-3xl text-cyanpop">frequently asked questions</h2>
           <WordSticker text="v exclusive interview" palette={3} rotate={-4} />
         </div>
         <div className="space-y-5 max-w-2xl mx-auto">
-          {FAQ.map((f, i) => (
+          {faq.map((f, i) => (
             <motion.div
-              key={f.q}
-              initial={{ opacity: 0, y: 18 }}
+              key={`${f.q}-${i}`}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              className={`flex flex-col gap-4 ${i % 2 ? "items-end" : "items-start"}`}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.05 }}
             >
-              <SpeechBubble color="#fff" rotate={i % 2 ? 1 : -1} className="max-w-[85%]">
-                <p className="font-comic text-sm font-bold text-grape">Q: {f.q}</p>
-              </SpeechBubble>
-              <SpeechBubble color="#ffd1ec" rotate={i % 2 ? -1 : 1} className="max-w-[85%]">
+              <SpeechBubble color={i % 2 ? "#ffd1ec" : "#c9f4ff"} rotate={i % 2 ? -1 : 1}>
+                <p className="font-chewy text-sm text-magenta mb-1">Q: {f.q}</p>
                 <p className="font-indie text-sm text-inkberry">A: {f.a}</p>
               </SpeechBubble>
             </motion.div>

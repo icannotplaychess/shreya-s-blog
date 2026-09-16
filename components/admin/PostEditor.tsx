@@ -9,7 +9,9 @@ import { CONTENT_TYPES, POST_STATUSES, type ContentTypeValue, type PostStatusVal
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MediaPicker } from "./MediaPicker";
+import { PlaylistTrackEditor } from "./PlaylistTrackEditor";
 import { formatApiError } from "@/lib/api-errors";
+import { parsePlaylistTracks, type PlaylistTrackItem } from "@/lib/site-content-defaults";
 
 interface Category { id: string; name: string }
 interface Tag { id: string; name: string }
@@ -48,6 +50,9 @@ export function PostEditor({
   const [coverImageId, setCoverImageId] = useState<string | null>(initial?.coverImageId ?? null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [metadata, setMetadata] = useState(initial?.metadata ?? "{}");
+  const [playlistTracks, setPlaylistTracks] = useState<PlaylistTrackItem[]>(() =>
+    parsePlaylistTracks(initial?.metadata ?? "{}")
+  );
   const [categoryIds, setCategoryIds] = useState<string[]>(initial?.categoryIds ?? []);
   const [tagIds, setTagIds] = useState<string[]>(initial?.tagIds ?? []);
   const [mediaIds, setMediaIds] = useState<string[]>(initial?.mediaIds ?? []);
@@ -98,6 +103,11 @@ export function PostEditor({
     setSaving(true);
     setError("");
 
+    const metaPayload =
+      type === "PLAYLIST"
+        ? JSON.stringify({ ...metaObj, playlistTracks })
+        : metadata;
+
     const payload = {
       title,
       slug: slug || undefined,
@@ -106,7 +116,7 @@ export function PostEditor({
       type,
       status: publishNow ? "PUBLISHED" : status,
       coverImageId,
-      metadata,
+      metadata: metaPayload,
       categoryIds,
       tagIds,
       mediaIds,
@@ -359,16 +369,10 @@ export function PostEditor({
                   <input
                     value={metaObj.artist ?? ""}
                     onChange={(e) => updateMeta("artist", e.target.value)}
-                    placeholder="Artist"
+                    placeholder="Playlist artist / curator"
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                   />
-                  <textarea
-                    value={metaObj.tracks ?? ""}
-                    onChange={(e) => updateMeta("tracks", e.target.value)}
-                    placeholder="Tracks (one per line)"
-                    rows={4}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
-                  />
+                  <PlaylistTrackEditor tracks={playlistTracks} onChange={setPlaylistTracks} />
                 </>
               )}
               {type === "QUIZ" && (
