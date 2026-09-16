@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { EditablePageHeader } from "@/components/ui/EditablePageHeader";
 import { CandyShelf } from "@/components/collections/CandyShelf";
 import { TreasureBox } from "@/components/collections/TreasureBox";
 
@@ -11,14 +11,7 @@ export const metadata: Metadata = {
 export default function CollectionsPage() {
   return (
     <div>
-      <PageHeader
-        title="COLLECTIONS"
-        subtitle="my museum of extremely important artifacts. entry fee: one poppins (orange, non-negotiable)."
-        stickers={[
-          { text: "do not touch!!", palette: 1, rotate: -5 },
-          { text: "ok u can touch", palette: 2, rotate: 4 },
-        ]}
-      />
+      <EditablePageHeader page="collections" />
       <div className="space-y-10">
         <CandyShelf />
         <TreasureBox />
