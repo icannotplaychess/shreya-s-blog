@@ -12,6 +12,7 @@ export function MediaUrlField({
   accept = "image/*,video/*,audio/*",
   hint,
   allowLibrary = true,
+  onPersist,
 }: {
   label: string;
   value?: string;
@@ -19,6 +20,8 @@ export function MediaUrlField({
   accept?: string;
   hint?: string;
   allowLibrary?: boolean;
+  /** Called after upload/pick with the new URL (e.g. auto-save settings to database). */
+  onPersist?: (url: string | undefined) => Promise<void>;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -32,6 +35,7 @@ export function MediaUrlField({
     try {
       const media = await uploadMediaFromBrowser(file);
       onChange(media.url);
+      if (onPersist) await onPersist(media.url);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -40,8 +44,13 @@ export function MediaUrlField({
     }
   }
 
-  const isAudio = value?.includes("audio") || accept.includes("audio");
-  const isVideo = value?.includes("video") || (value && !isAudio && accept.includes("video"));
+  const isAudio = value?.match(/\.(mp3|wav|ogg|m4a)|audio/i) || accept.includes("audio");
+  const isVideo = value?.match(/\.(mp4|webm)|video/i) || (value && !isAudio && accept.includes("video"));
+  const uploadLabel = isAudio
+    ? uploading ? "Uploading..." : value ? "Replace audio" : "Upload audio"
+    : isVideo
+      ? uploading ? "Uploading..." : value ? "Replace video" : "Upload video"
+      : uploading ? "Uploading..." : value ? "Replace photo" : "Upload photo";
 
   return (
     <div className="space-y-2">
@@ -63,7 +72,7 @@ export function MediaUrlField({
       )}
       <div className="flex flex-wrap gap-2">
         <label className="inline-block px-3 py-1.5 bg-pink-600 text-white rounded text-xs cursor-pointer hover:bg-pink-700">
-          {uploading ? "Uploading..." : value ? "Replace photo" : "Upload photo"}
+          {uploadLabel}
           <input type="file" className="hidden" accept={accept} onChange={handleUpload} disabled={uploading} />
         </label>
         {allowLibrary && (
@@ -80,8 +89,11 @@ export function MediaUrlField({
       {showPicker && (
         <MediaPicker
           onSelect={(media) => {
-            onChange(media.url);
-            setShowPicker(false);
+            void (async () => {
+              onChange(media.url);
+              setShowPicker(false);
+              if (onPersist) await onPersist(media.url);
+            })();
           }}
           onClose={() => setShowPicker(false)}
         />

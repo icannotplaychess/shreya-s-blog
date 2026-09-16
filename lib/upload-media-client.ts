@@ -1,4 +1,5 @@
 import { upload } from "@vercel/blob/client";
+import { authedFetch } from "@/lib/authed-fetch";
 import { resolveMimeType } from "@/lib/mime";
 
 export interface UploadedMedia {
@@ -23,7 +24,7 @@ export async function uploadMediaFromBrowser(file: File): Promise<UploadedMedia>
     clientPayload: JSON.stringify({ originalName: file.name, size: file.size }),
   });
 
-  const res = await fetch("/api/media", {
+  const res = await authedFetch("/api/media", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

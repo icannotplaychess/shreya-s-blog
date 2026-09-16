@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { authedFetch } from "@/lib/authed-fetch";
 
 export function PostListActions({
   postId,
@@ -21,7 +22,7 @@ export function PostListActions({
     setPublishing(true);
     setError("");
     try {
-      const res = await fetch(`/api/posts/${postId}`, {
+      const res = await authedFetch(`/api/posts/${postId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "PUBLISHED" }),

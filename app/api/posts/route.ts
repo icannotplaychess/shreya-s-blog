@@ -81,9 +81,9 @@ export async function POST(req: NextRequest) {
     include: { coverImage: true, categories: true, tags: true },
   });
 
-  if (data.mediaItems?.length) {
+  if (data.mediaItems !== undefined) {
     await syncPostMedia(post.id, data.mediaItems);
-  } else if (data.mediaIds?.length) {
+  } else if (data.mediaIds !== undefined) {
     await syncPostMedia(
       post.id,
       data.mediaIds.map((mediaId) => ({ mediaId }))

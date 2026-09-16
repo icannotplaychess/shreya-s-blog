@@ -1,10 +1,20 @@
 import Link from "next/link";
-import { CmsPostView } from "@/components/content/CmsPostView";
+import { notFound } from "next/navigation";
+import { PostSpread } from "@/components/content/PostRenderer";
+import { getPostBySlug } from "@/lib/posts";
+import { serializePost } from "@/lib/serialize-post";
 
 type Params = { params: Promise<{ slug: string }> };
 
+export const dynamic = "force-dynamic";
+
 export default async function PostPage({ params }: Params) {
   const { slug } = await params;
+  const post = await getPostBySlug(slug);
+
+  if (!post) {
+    notFound();
+  }
 
   return (
     <div className="relative py-4">
@@ -14,7 +24,7 @@ export default async function PostPage({ params }: Params) {
       >
         ← back home
       </Link>
-      <CmsPostView slug={slug} />
+      <PostSpread post={serializePost(post)} />
     </div>
   );
 }
