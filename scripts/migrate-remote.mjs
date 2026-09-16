@@ -8,8 +8,8 @@ import { randomUUID } from "crypto";
 import fs from "fs";
 import path from "path";
 
-const url = process.env.DATABASE_URL?.trim() || process.env.TURSO_DATABASE_URL?.trim();
-const authToken = process.env.DATABASE_AUTH_TOKEN?.trim() || process.env.TURSO_AUTH_TOKEN?.trim();
+const url = process.env.TURSO_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim();
+const authToken = process.env.TURSO_AUTH_TOKEN?.trim() || process.env.DATABASE_AUTH_TOKEN?.trim();
 
 function isRemoteDatabase(value) {
   return Boolean(value && (value.startsWith("libsql:") || value.startsWith("https://") || value.startsWith("http://")));
@@ -21,7 +21,7 @@ if (!isRemoteDatabase(url)) {
 }
 
 if (!authToken) {
-  console.error("✗ DATABASE_AUTH_TOKEN is required when DATABASE_URL is a Turso/libSQL URL");
+  console.error("✗ DATABASE_AUTH_TOKEN (or TURSO_AUTH_TOKEN) is required for Turso migrations");
   process.exit(1);
 }
 

@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node scripts/migrate-remote.mjs && prisma migrate deploy && node scripts/verify-db.mjs && tsx scripts/ensure-admin.ts && next build",
+    "build": "bash scripts/vercel-build.sh",
+    "postinstall": "DATABASE_URL=file:./prisma/dev.db LOCAL_DATABASE_URL=file:./prisma/dev.db prisma generate",
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "db:studio": "prisma studio"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
