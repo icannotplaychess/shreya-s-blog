@@ -29,11 +29,43 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(media);
 }
 
+/** Register a blob already uploaded via client upload, or accept multipart server upload. */
 export async function POST(req: NextRequest) {
   const authResult = await requireAuth();
   if (authResult.error) return authResult.error;
 
   try {
+    const contentType = req.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      const body = await req.json();
+      const { url, originalName, mimeType, size, filename, alt } = body as {
+        url?: string;
+        originalName?: string;
+        mimeType?: string;
+        size?: number;
+        filename?: string;
+        alt?: string;
+      };
+
+      if (!url || !originalName || !mimeType || !size || !filename) {
+        return NextResponse.json({ error: "Missing media fields" }, { status: 400 });
+      }
+
+      const media = await prisma.media.create({
+        data: {
+          filename,
+          originalName,
+          mimeType,
+          size,
+          url,
+          alt,
+        },
+      });
+
+      return NextResponse.json(media, { status: 201 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const alt = (formData.get("alt") as string) || undefined;

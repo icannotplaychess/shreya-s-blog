@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { resolveMediaUrl } from "@/lib/media-url";
+import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 
 interface Media {
   id: string;
@@ -34,20 +35,14 @@ export default function AdminMediaPage() {
     setError("");
     try {
       for (const file of Array.from(files)) {
-        const form = new FormData();
-        form.append("file", file);
-        const res = await fetch("/api/media", { method: "POST", body: form });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          setError(data.error || `Failed to upload ${file.name}`);
-          return;
-        }
+        await uploadMediaFromBrowser(file);
       }
       await load();
-    } catch {
-      setError("Could not upload files. Check that Vercel Blob is configured.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not upload files");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   }
 
@@ -72,12 +67,13 @@ export default function AdminMediaPage() {
             multiple
             className="hidden"
             onChange={handleUpload}
-            accept="image/*,video/*,audio/*,.pdf"
+            accept="image/*,video/*,audio/*,.pdf,.mp3,.m4a,.wav,.ogg"
+            disabled={uploading}
           />
         </label>
       </div>
 
-      {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
+      {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">{error}</div>}
 
       <input
         value={q}
@@ -93,7 +89,12 @@ export default function AdminMediaPage() {
               {m.mimeType.startsWith("image/") ? (
                 <img src={resolveMediaUrl(m.url)} alt={m.originalName} className="w-full h-full object-cover" />
               ) : m.mimeType.startsWith("video/") ? (
-                <video src={m.url} className="w-full h-full object-cover" />
+                <video src={resolveMediaUrl(m.url)} className="w-full h-full object-cover" controls />
+              ) : m.mimeType.startsWith("audio/") ? (
+                <div className="w-full h-full flex flex-col items-center justify-center p-2 gap-2">
+                  <span className="text-2xl">🎵</span>
+                  <audio src={resolveMediaUrl(m.url)} controls className="w-full" />
+                </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-xs text-slate-500 p-2 text-center">
                   {m.originalName}

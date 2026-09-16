@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PlaylistTrackItem } from "@/lib/site-content-defaults";
+import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 
 export function PlaylistTrackEditor({
   tracks,
@@ -28,18 +29,11 @@ export function PlaylistTrackEditor({
   async function uploadAudio(index: number, file: File) {
     setUploading(index);
     setError("");
-    const form = new FormData();
-    form.append("file", file);
     try {
-      const res = await fetch("/api/media", { method: "POST", body: form });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error || "Upload failed");
-        return;
-      }
+      const data = await uploadMediaFromBrowser(file);
       updateTrack(index, { audioUrl: data.url, mediaId: data.id });
-    } catch {
-      setError("Could not upload audio file");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not upload audio file");
     } finally {
       setUploading(null);
     }

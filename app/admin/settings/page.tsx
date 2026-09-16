@@ -14,6 +14,7 @@ import {
   type AboutFaq,
 } from "@/lib/site-content";
 import { Field, StringListEditor, SaveButton } from "@/components/admin/settings/SettingsEditors";
+import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 
 type TabId =
   | "homepage"
@@ -224,17 +225,18 @@ export default function AdminSettingsPage() {
 
   async function uploadTrackAudio(index: number, file: File) {
     setUploading(index);
-    const form = new FormData();
-    form.append("file", file);
-    const res = await fetch("/api/media", { method: "POST", body: form });
-    const data = await res.json().catch(() => ({}));
-    setUploading(null);
-    if (res.ok) {
+    setError("");
+    try {
+      const data = await uploadMediaFromBrowser(file);
       patch("musicPlayer", {
         tracks: content.musicPlayer.tracks.map((track, i) =>
           i === index ? { ...track, audioUrl: data.url } : track
         ),
       });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not upload audio file");
+    } finally {
+      setUploading(null);
     }
   }
 
