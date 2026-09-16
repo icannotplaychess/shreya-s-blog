@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { resolveMediaUrl } from "@/lib/media-url";
+import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 
 interface Media {
   id: string;
@@ -36,21 +37,15 @@ export function MediaPicker({
     if (!file) return;
     setUploading(true);
     setError("");
-    const form = new FormData();
-    form.append("file", file);
     try {
-      const res = await fetch("/api/media", { method: "POST", body: form });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error || "Upload failed");
-        return;
-      }
+      const data = await uploadMediaFromBrowser(file);
       setMedia((prev) => [data, ...prev]);
       onSelect(data);
-    } catch {
-      setError("Could not upload file. Check that Vercel Blob is configured.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not upload file");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   }
 

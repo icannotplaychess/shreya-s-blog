@@ -10,15 +10,9 @@ export async function GET(req: NextRequest) {
   }
   const blobUrl: string = rawUrl;
 
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) {
-    return NextResponse.redirect(blobUrl);
-  }
-  const blobToken: string = token;
-
   async function streamBlob(access: "private" | "public") {
-    const result = await get(blobUrl, { access, token: blobToken });
-    if (!result) return null;
+    const result = await get(blobUrl, { access });
+    if (!result || result.statusCode !== 200 || !result.stream) return null;
     const headers = new Headers();
     headers.set("Content-Type", result.blob.contentType || "application/octet-stream");
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
@@ -32,9 +26,9 @@ export async function GET(req: NextRequest) {
     const publicResponse = await streamBlob("public");
     if (publicResponse) return publicResponse;
 
-    return NextResponse.redirect(blobUrl);
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
   } catch (error) {
     console.error("Blob serve error:", error);
-    return NextResponse.redirect(blobUrl);
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
 }

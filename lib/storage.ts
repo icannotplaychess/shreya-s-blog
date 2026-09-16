@@ -5,13 +5,9 @@ import path from "path";
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 
 export function getStorageMode(): "vercel-blob" | "local-files" {
-  return process.env.BLOB_READ_WRITE_TOKEN ? "vercel-blob" : "local-files";
-}
-
-function blobAccess(): "public" | "private" {
-  const configured = process.env.BLOB_ACCESS?.trim().toLowerCase();
-  if (configured === "public" || configured === "private") return configured;
-  return "private";
+  return process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID
+    ? "vercel-blob"
+    : "local-files";
 }
 
 export async function saveUploadedFile(
@@ -19,38 +15,22 @@ export async function saveUploadedFile(
   filename: string,
   contentType?: string
 ): Promise<string> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (token) {
-    const access = blobAccess();
-    try {
-      const blob = await put(`uploads/${filename}`, file, {
-        access,
-        token,
-        contentType: contentType || file.type || undefined,
-        addRandomSuffix: false,
-      });
-      return blob.url;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      if (access === "private" && message.includes("private")) {
-        throw new Error(`Blob upload failed: ${message}. Your store is private — do not set BLOB_ACCESS=public.`);
-      }
-      if (access === "public" && message.includes("private store")) {
-        const blob = await put(`uploads/${filename}`, file, {
-          access: "private",
-          token,
-          contentType: contentType || file.type || undefined,
-          addRandomSuffix: false,
-        });
-        return blob.url;
-      }
-      throw error;
-    }
+  const onVercel = process.env.VERCEL === "1";
+  const hasBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+
+  if (hasBlob) {
+    const body = Buffer.from(await file.arrayBuffer());
+    const blob = await put(`uploads/${filename}`, body, {
+      access: "private",
+      contentType: contentType || file.type || undefined,
+      addRandomSuffix: false,
+    });
+    return blob.url;
   }
 
-  if (process.env.VERCEL === "1") {
+  if (onVercel) {
     throw new Error(
-      "File uploads require Vercel Blob. Link a Blob store in Vercel → Storage → Connect to Project, then redeploy."
+      "File uploads require Vercel Blob. In Vercel → Storage, connect a Blob store to this project, then redeploy."
     );
   }
 
@@ -63,10 +43,7 @@ export async function saveUploadedFile(
 
 export async function deleteStoredFile(url: string) {
   if (url.includes("blob.vercel-storage.com")) {
-    const token = process.env.BLOB_READ_WRITE_TOKEN;
-    if (token) {
-      await del(url, { token });
-    }
+    await del(url);
     return;
   }
 
