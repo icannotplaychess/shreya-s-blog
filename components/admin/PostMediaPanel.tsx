@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
+import { authedFetch } from "@/lib/authed-fetch";
 import { MediaPicker } from "./MediaPicker";
 
 interface MediaItem {
@@ -35,7 +36,7 @@ export function PostMediaPanel({
       setItems([]);
       return;
     }
-    fetch("/api/media")
+    authedFetch("/api/media")
       .then((r) => (r.ok ? r.json() : []))
       .then((all: MediaItem[]) => setItems(all.filter((m) => mediaIds.includes(m.id))))
       .catch(() => setItems([]));

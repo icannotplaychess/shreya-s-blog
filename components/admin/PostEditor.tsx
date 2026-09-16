@@ -16,6 +16,7 @@ import { PhotoDumpPolaroidEditor, type PolaroidMediaEntry } from "./PhotoDumpPol
 import { PostAudioSection } from "./PostAudioSection";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { formatApiError } from "@/lib/api-errors";
+import { authedFetch } from "@/lib/authed-fetch";
 import { parsePlaylistTracks, type PlaylistTrackItem } from "@/lib/site-content-defaults";
 
 interface Category { id: string; name: string }
@@ -149,6 +150,12 @@ export function PostEditor({
       ...(type !== "PLAYLIST" && MP3_POST_TYPES.has(type) ? { audioTracks } : {}),
     });
 
+    const effectiveCoverId =
+      coverImageId ||
+      (POLAROID_POST_TYPES.has(type) && polaroidEntries[0]?.mediaId
+        ? polaroidEntries[0].mediaId
+        : null);
+
     const payload = {
       title,
       slug: slug || undefined,
@@ -156,7 +163,7 @@ export function PostEditor({
       content: JSON.stringify(editor?.getJSON() ?? {}),
       type,
       status: publishNow ? "PUBLISHED" : status,
-      coverImageId,
+      coverImageId: effectiveCoverId,
       metadata: metaPayload,
       categoryIds,
       tagIds,
@@ -171,7 +178,7 @@ export function PostEditor({
     try {
       const url = initial?.id ? `/api/posts/${initial.id}` : "/api/posts";
       const method = initial?.id ? "PATCH" : "POST";
-      const res = await fetch(url, {
+      const res = await authedFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -226,8 +233,16 @@ export function PostEditor({
     setMetadata(JSON.stringify(next));
   }
 
+  const isDraft = status === "DRAFT";
+
   return (
     <div className="space-y-6">
+      {isDraft && (
+        <div className="p-3 bg-amber-50 text-amber-950 rounded-lg text-sm border border-amber-200">
+          <strong>Draft</strong> — hidden from the public site until you click{" "}
+          <strong>Publish now</strong> or set status to Published and save.
+        </div>
+      )}
       {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
       {savedMessage && <div className="p-3 bg-green-50 text-green-800 rounded-lg text-sm border border-green-200">{savedMessage}</div>}
 
@@ -363,14 +378,23 @@ export function PostEditor({
             </button>
           </div>
 
-          {POLAROID_POST_TYPES.has(type) ? (
-            <PhotoDumpPolaroidEditor entries={polaroidEntries} onChange={setPolaroidEntries} />
-          ) : (
-            <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} initialItems={initial?.initialMedia} />
-          )}
-
           {MP3_POST_TYPES.has(type) && (
             <PostAudioSection type={type} tracks={audioTracks} onChange={setAudioTracks} />
+          )}
+
+          {POLAROID_POST_TYPES.has(type) ? (
+            <PhotoDumpPolaroidEditor
+              entries={polaroidEntries}
+              onChange={(entries) => {
+                setPolaroidEntries(entries);
+                if (!coverImageId && entries[0]?.mediaId) {
+                  setCoverImageId(entries[0].mediaId);
+                  setCoverPreview(entries[0].url);
+                }
+              }}
+            />
+          ) : (
+            <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} initialItems={initial?.initialMedia} />
           )}
 
           <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">

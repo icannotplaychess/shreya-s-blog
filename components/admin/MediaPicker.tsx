@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
+import { authedFetch } from "@/lib/authed-fetch";
 
 interface Media {
   id: string;
@@ -24,7 +25,7 @@ export function MediaPicker({
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/media?q=${encodeURIComponent(q)}`);
+    const res = await authedFetch(`/api/media?q=${encodeURIComponent(q)}`);
     if (res.ok) setMedia(await res.json());
   }, [q]);
 

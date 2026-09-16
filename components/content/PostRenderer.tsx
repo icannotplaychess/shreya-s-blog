@@ -77,17 +77,44 @@ function TipTapContent({ content }: { content: string }) {
   );
 }
 
+function PostCardPreview({ post }: { post: PostWithRelations }) {
+  const galleryImages = post.mediaItems
+    .filter((m) => m.media.mimeType.startsWith("image/"))
+    .map((m) => m.media);
+
+  if (post.coverImage) {
+    return (
+      <div className="mb-3 overflow-hidden rounded-lg border-4 border-white shadow-md -rotate-1">
+        <img src={resolveMediaUrl(post.coverImage.url)} alt={post.title} className="w-full h-40 object-cover" />
+      </div>
+    );
+  }
+
+  if (galleryImages.length > 0 && (post.type === "PHOTO_DUMP" || post.type === "MOODBOARD" || post.type === "COLLECTION")) {
+    return (
+      <div className="mb-3 grid grid-cols-3 gap-1 h-40">
+        {galleryImages.slice(0, 3).map((img, i) => (
+          <div
+            key={img.id}
+            className={`overflow-hidden border-2 border-white shadow-md bg-white p-1 ${i === 1 ? "-rotate-3" : i === 2 ? "rotate-2" : "-rotate-1"}`}
+          >
+            <img src={resolveMediaUrl(img.url)} alt="" className="w-full h-full object-cover" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function PostCard({ post }: { post: PostWithRelations }) {
   const meta = parsePostMetadata<Record<string, string>>(post.metadata, {});
   const href = `/post/${post.slug}`;
 
   return (
     <Link href={href} className="paper-card block p-4 sm:p-5 hover:scale-[1.01] transition-transform -rotate-[0.3deg] group">
-      {post.coverImage && (
-        <div className="mb-3 overflow-hidden rounded-lg border-4 border-white shadow-md -rotate-1">
-          <img src={resolveMediaUrl(post.coverImage.url)} alt={post.title} className="w-full h-40 object-cover" />
-        </div>
-      )}
+      <PostCardPreview post={post} />
       <span className="font-pixel text-[9px] text-grape uppercase tracking-widest">{post.type.replace("_", " ")}</span>
       <h3 className="font-bangers text-2xl text-hotpink outline-text group-hover:text-magenta mt-1">{post.title}</h3>
       {post.excerpt && <p className="font-comic text-sm text-inkberry/80 mt-2">{post.excerpt}</p>}
