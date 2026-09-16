@@ -23,7 +23,8 @@ export async function loadSiteContent(): Promise<SiteContent> {
   const entries = await Promise.all(
     CONTENT_KEYS.map(async (key) => {
       const fallback = DEFAULT_SITE_CONTENT[key as keyof SiteContent];
-      const value = await getSiteSetting(key, fallback);
+      const stored = await getSiteSetting<typeof fallback | null>(key, null);
+      const value = stored ?? fallback;
       return [key, value] as const;
     })
   );

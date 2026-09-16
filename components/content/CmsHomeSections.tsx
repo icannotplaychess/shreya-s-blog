@@ -7,22 +7,13 @@ import { PostCard } from "@/components/content/PostRenderer";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { Sticker } from "@/components/ui/Sticker";
 import { SpeechBubble } from "@/components/ui/SpeechBubble";
-
-interface HomepageSettings {
-  tagline?: string;
-  subtitle?: string;
-  currentObsession?: string;
-  songOfTheWeek?: { title: string; artist: string; note: string };
-  mood?: string;
-  quote?: string;
-  welcomeMessage?: string;
-}
+import { useSiteContent } from "@/components/providers/SiteContentProvider";
 
 export function CmsHomeSections() {
+  const { homepage } = useSiteContent();
   const [latestPosts, setLatestPosts] = useState<PostWithRelations[]>([]);
   const [latestDiary, setLatestDiary] = useState<PostWithRelations | null>(null);
   const [latestPhotoDump, setLatestPhotoDump] = useState<PostWithRelations | null>(null);
-  const [settings, setSettings] = useState<HomepageSettings>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,13 +21,11 @@ export function CmsHomeSections() {
       fetch("/api/public/posts?limit=4").then((r) => r.json()),
       fetch("/api/public/posts?type=DIARY&limit=1").then((r) => r.json()),
       fetch("/api/public/posts?type=PHOTO_DUMP&limit=1").then((r) => r.json()),
-      fetch("/api/public/settings").then((r) => r.json()).catch(() => ({})),
     ])
-      .then(([posts, diary, dumps, siteSettings]) => {
+      .then(([posts, diary, dumps]) => {
         setLatestPosts(Array.isArray(posts) ? posts : []);
         setLatestDiary(Array.isArray(diary) && diary[0] ? diary[0] : null);
         setLatestPhotoDump(Array.isArray(dumps) && dumps[0] ? dumps[0] : null);
-        setSettings(siteSettings?.homepage ?? siteSettings ?? {});
       })
       .finally(() => setLoading(false));
   }, []);
@@ -51,47 +40,45 @@ export function CmsHomeSections() {
 
   return (
     <>
-      <section>
-        <div className="flex items-center gap-3 mb-4">
-          <CutoutHeading text="latest from shankie's" className="text-3xl sm:text-4xl text-grape" />
-          <Sticker size="text-3xl" className="anim-bounce-tiny" rotate={8}>★</Sticker>
-        </div>
-        {latestPosts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {latestPosts.map((post) => <PostCard key={post.id} post={post} />)}
-          </div>
-        ) : (
-          <SpeechBubble color="#ffd1ec">
-            <p className="font-comic text-sm">no posts yet... coming soon!!</p>
-          </SpeechBubble>
-        )}
-        <Link href="/blog" className="inline-block mt-4 font-lucky text-sm text-hotpink hover:underline">
-          see all posts →
-        </Link>
-      </section>
-
-      {(latestDiary || latestPhotoDump) && (
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {latestDiary && (
-            <div>
-              <h3 className="font-bangers text-2xl text-hotpink outline-text mb-3">dear diary...</h3>
-              <PostCard post={latestDiary} />
-            </div>
-          )}
-          {latestPhotoDump && (
-            <div>
-              <h3 className="font-bangers text-2xl text-cyanpop outline-text mb-3">photo dump</h3>
-              <PostCard post={latestPhotoDump} />
-            </div>
-          )}
+      {homepage.currentObsession && (
+        <section className="paper-card p-4 sm:p-6 rotate-[0.3deg]">
+          <CutoutHeading text="CURRENTLY OBSESSED WITH" size="text-xl sm:text-2xl" />
+          <p className="font-marker text-lg text-hotpink mt-2">{homepage.currentObsession}</p>
         </section>
       )}
 
-      {settings.currentObsession && (
-        <section className="paper-card p-4 -rotate-1">
-          <h3 className="font-bangers text-xl text-magenta mb-2">currently obsessed with</h3>
-          <p className="font-chewy text-lg text-inkberry">{settings.currentObsession}</p>
+      {latestPosts.length > 0 && (
+        <section>
+          <div className="flex items-center gap-3 mb-4">
+            <CutoutHeading text="latest from shankie's" size="text-2xl sm:text-3xl" />
+            <Sticker size="text-2xl" className="anim-wiggle" rotate={6}>✨</Sticker>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {latestPosts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+          <Link href="/blog" className="inline-block mt-4 font-lucky text-sm text-magenta hover:underline">
+            see all posts →
+          </Link>
         </section>
+      )}
+
+      {(latestDiary || latestPhotoDump) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {latestDiary && (
+            <section>
+              <CutoutHeading text="dear diary..." size="text-xl sm:text-2xl" className="mb-3" />
+              <PostCard post={latestDiary} />
+            </section>
+          )}
+          {latestPhotoDump && (
+            <section>
+              <CutoutHeading text="photo dump" size="text-xl sm:text-2xl" className="mb-3" />
+              <PostCard post={latestPhotoDump} />
+            </section>
+          )}
+        </div>
       )}
     </>
   );

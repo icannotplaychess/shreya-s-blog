@@ -14,19 +14,43 @@ function blobAccess(): "public" | "private" {
   return "private";
 }
 
-export async function saveUploadedFile(file: File, filename: string): Promise<string> {
+export async function saveUploadedFile(
+  file: File,
+  filename: string,
+  contentType?: string
+): Promise<string> {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (token) {
-    const blob = await put(`uploads/${filename}`, file, {
-      access: blobAccess(),
-      token,
-    });
-    return blob.url;
+    const access = blobAccess();
+    try {
+      const blob = await put(`uploads/${filename}`, file, {
+        access,
+        token,
+        contentType: contentType || file.type || undefined,
+        addRandomSuffix: false,
+      });
+      return blob.url;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (access === "private" && message.includes("private")) {
+        throw new Error(`Blob upload failed: ${message}. Your store is private — do not set BLOB_ACCESS=public.`);
+      }
+      if (access === "public" && message.includes("private store")) {
+        const blob = await put(`uploads/${filename}`, file, {
+          access: "private",
+          token,
+          contentType: contentType || file.type || undefined,
+          addRandomSuffix: false,
+        });
+        return blob.url;
+      }
+      throw error;
+    }
   }
 
   if (process.env.VERCEL === "1") {
     throw new Error(
-      "File uploads require Vercel Blob. Create a Blob store in Vercel → Storage and redeploy."
+      "File uploads require Vercel Blob. Link a Blob store in Vercel → Storage → Connect to Project, then redeploy."
     );
   }
 
