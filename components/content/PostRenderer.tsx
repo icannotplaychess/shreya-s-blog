@@ -103,6 +103,7 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
   const meta = parsePostMetadata<Record<string, string>>(post.metadata, {});
 
   if (post.type === "DIARY") {
+    const audioTracks = parseAudioTracks(post.metadata);
     return (
       <article className="relative">
         <div className="paper-card p-6 sm:p-10 -rotate-[0.5deg] bg-[#fffef8] border-4 border-white shadow-xl"
@@ -116,14 +117,20 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
           <p className="font-marker text-sm text-grape mb-2">{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : "today"}</p>
           <CutoutHeading text={post.title} className="text-3xl sm:text-4xl mb-6" />
           {meta.mood && <WordSticker text={meta.mood} palette={1} rotate={-6} className="mb-4" />}
+          {audioTracks.length > 0 && (
+            <div className="mb-6">
+              <PlaylistAudioPlayer title={post.title} tracks={audioTracks} mood={meta.mood} coverUrl={post.coverImage?.url} />
+            </div>
+          )}
           <TipTapContent content={post.content} />
+          <PostAttachedMedia items={post.mediaItems} />
         </div>
       </article>
     );
   }
 
   if (post.type === "PHOTO_DUMP" || post.type === "MOODBOARD" || post.type === "COLLECTION") {
-    const images = post.mediaItems.filter((m) => m.media.mimeType.startsWith("image/")).map((m) => m.media);
+    const polaroids = post.mediaItems.filter((m) => m.media.mimeType.startsWith("image/"));
     return (
       <article>
         <CutoutHeading text={post.title} className="text-4xl sm:text-5xl mb-6 justify-center" />
@@ -132,13 +139,13 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
             <p className="font-comic text-sm">{post.excerpt}</p>
           </SpeechBubble>
         )}
-        {images.length > 0 && (
+        {polaroids.length > 0 && (
           <div className="relative min-h-[400px]">
-            {images.map((img, i) => (
+            {polaroids.map((item, i) => (
               <Polaroid
-                key={img.id}
-                photo={<img src={resolveMediaUrl(img.url)} alt={img.alt ?? ""} className="w-full h-full object-cover" />}
-                caption={img.alt ?? ""}
+                key={item.media.id}
+                photo={<img src={resolveMediaUrl(item.media.url)} alt={item.caption ?? ""} className="w-full h-full object-cover" />}
+                caption={item.caption ?? item.media.originalName}
                 rotate={(i % 5) * 4 - 8}
                 className={`absolute w-36 sm:w-44 ${[
                   "top-0 left-[5%]",

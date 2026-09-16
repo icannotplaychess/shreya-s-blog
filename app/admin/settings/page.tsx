@@ -293,7 +293,7 @@ export default function AdminSettingsPage() {
                 value={hp.polaroidImageUrl}
                 onChange={(v) => patch("homepage", { ...hp, polaroidImageUrl: v })}
                 accept="image/*"
-                hint="Replaces the default doodle art. Save settings after uploading."
+                hint="Upload a photo or pick one from your media library. Click Save settings when done."
               />
               <MediaUrlField label="Sticker next to polaroid (optional)" value={hp.stickerImageUrl} onChange={(v) => patch("homepage", { ...hp, stickerImageUrl: v })} accept="image/*" />
             </Card>

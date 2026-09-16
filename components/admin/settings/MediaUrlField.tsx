@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 import { resolveMediaUrl } from "@/lib/media-url";
+import { MediaPicker } from "@/components/admin/MediaPicker";
 
 export function MediaUrlField({
   label,
@@ -10,15 +11,18 @@ export function MediaUrlField({
   onChange,
   accept = "image/*,video/*,audio/*",
   hint,
+  allowLibrary = true,
 }: {
   label: string;
   value?: string;
   onChange: (url: string | undefined) => void;
   accept?: string;
   hint?: string;
+  allowLibrary?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -57,11 +61,31 @@ export function MediaUrlField({
           </button>
         </div>
       )}
-      <label className="inline-block px-3 py-1.5 bg-pink-600 text-white rounded text-xs cursor-pointer hover:bg-pink-700">
-        {uploading ? "Uploading..." : value ? "Replace file" : "Upload file"}
-        <input type="file" className="hidden" accept={accept} onChange={handleUpload} disabled={uploading} />
-      </label>
+      <div className="flex flex-wrap gap-2">
+        <label className="inline-block px-3 py-1.5 bg-pink-600 text-white rounded text-xs cursor-pointer hover:bg-pink-700">
+          {uploading ? "Uploading..." : value ? "Replace photo" : "Upload photo"}
+          <input type="file" className="hidden" accept={accept} onChange={handleUpload} disabled={uploading} />
+        </label>
+        {allowLibrary && (
+          <button
+            type="button"
+            onClick={() => setShowPicker(true)}
+            className="px-3 py-1.5 border border-pink-300 text-pink-700 rounded text-xs hover:bg-pink-50"
+          >
+            Pick from library
+          </button>
+        )}
+      </div>
       {error && <p className="text-xs text-red-600">{error}</p>}
+      {showPicker && (
+        <MediaPicker
+          onSelect={(media) => {
+            onChange(media.url);
+            setShowPicker(false);
+          }}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }

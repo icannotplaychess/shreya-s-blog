@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { MediaPicker } from "./MediaPicker";
 import { PlaylistTrackEditor } from "./PlaylistTrackEditor";
 import { PostMediaPanel } from "./PostMediaPanel";
+import { PhotoDumpPolaroidEditor, type PolaroidMediaEntry } from "./PhotoDumpPolaroidEditor";
+import { PostAudioSection } from "./PostAudioSection";
 import { resolveMediaUrl } from "@/lib/media-url";
 import { formatApiError } from "@/lib/api-errors";
 import { parsePlaylistTracks, type PlaylistTrackItem } from "@/lib/site-content-defaults";
@@ -35,7 +37,11 @@ interface PostData {
   tagIds: string[];
   mediaIds: string[];
   initialMedia?: Media[];
+  initialMediaItems?: { media: Media; caption: string | null }[];
 }
+
+const POLAROID_POST_TYPES = new Set<ContentTypeValue>(["PHOTO_DUMP", "MOODBOARD", "COLLECTION"]);
+const MP3_POST_TYPES = new Set<ContentTypeValue>(["BLOG", "DIARY", "LIST", "QUIZ", "MOODBOARD", "COLLECTION"]);
 
 export function PostEditor({
   initial,
@@ -69,6 +75,18 @@ export function PostEditor({
   const [categoryIds, setCategoryIds] = useState<string[]>(initial?.categoryIds ?? []);
   const [tagIds, setTagIds] = useState<string[]>(initial?.tagIds ?? []);
   const [mediaIds, setMediaIds] = useState<string[]>(initial?.mediaIds ?? []);
+  const [polaroidEntries, setPolaroidEntries] = useState<PolaroidMediaEntry[]>(() => {
+    const items = initial?.initialMediaItems ?? [];
+    return items
+      .filter((item) => item.media.mimeType.startsWith("image/"))
+      .map((item) => ({
+        mediaId: item.media.id,
+        caption: item.caption ?? item.media.originalName.replace(/\.[^.]+$/, ""),
+        url: item.media.url,
+        mimeType: item.media.mimeType,
+        originalName: item.media.originalName,
+      }));
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
@@ -128,7 +146,7 @@ export function PostEditor({
     const metaPayload = JSON.stringify({
       ...metaObj,
       ...(type === "PLAYLIST" ? { playlistTracks } : {}),
-      ...(type !== "PLAYLIST" && audioTracks.length > 0 ? { audioTracks } : {}),
+      ...(type !== "PLAYLIST" && MP3_POST_TYPES.has(type) ? { audioTracks } : {}),
     });
 
     const payload = {
@@ -142,7 +160,12 @@ export function PostEditor({
       metadata: metaPayload,
       categoryIds,
       tagIds,
-      mediaIds,
+      mediaItems: POLAROID_POST_TYPES.has(type)
+        ? polaroidEntries.map((e) => ({ mediaId: e.mediaId, caption: e.caption }))
+        : mediaIds.map((id) => ({ mediaId: id })),
+      mediaIds: POLAROID_POST_TYPES.has(type)
+        ? polaroidEntries.map((e) => e.mediaId)
+        : mediaIds,
     };
 
     try {
@@ -340,7 +363,15 @@ export function PostEditor({
             </button>
           </div>
 
-          <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} initialItems={initial?.initialMedia} />
+          {POLAROID_POST_TYPES.has(type) ? (
+            <PhotoDumpPolaroidEditor entries={polaroidEntries} onChange={setPolaroidEntries} />
+          ) : (
+            <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} initialItems={initial?.initialMedia} />
+          )}
+
+          {MP3_POST_TYPES.has(type) && (
+            <PostAudioSection type={type} tracks={audioTracks} onChange={setAudioTracks} />
+          )}
 
           <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
             <h3 className="font-medium text-sm">Categories</h3>
@@ -406,14 +437,6 @@ export function PostEditor({
                 placeholder='Quiz JSON: {"questions":[...],"results":[...]}'
                 rows={6}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
-              />
-            )}
-            {type !== "PLAYLIST" && (
-              <PlaylistTrackEditor
-                tracks={audioTracks}
-                onChange={setAudioTracks}
-                label="Audio tracks (MP3)"
-                emptyHint="Add MP3s to attach audio to this post."
               />
             )}
           </div>

@@ -13,6 +13,14 @@ export const postSchema = z.object({
   categoryIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),
   mediaIds: z.array(z.string()).optional(),
+  mediaItems: z
+    .array(
+      z.object({
+        mediaId: z.string(),
+        caption: z.string().optional(),
+      })
+    )
+    .optional(),
   publishedAt: z.string().nullable().optional(),
 });
 

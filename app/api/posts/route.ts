@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
 import { postSchema } from "@/lib/validations";
 import { uniqueSlug } from "@/lib/slug";
+import { syncPostMedia } from "@/lib/sync-post-media";
 
 export async function GET(req: NextRequest) {
   const authResult = await requireAuth();
@@ -80,14 +81,13 @@ export async function POST(req: NextRequest) {
     include: { coverImage: true, categories: true, tags: true },
   });
 
-  if (data.mediaIds?.length) {
-    await prisma.postMedia.createMany({
-      data: data.mediaIds.map((mediaId, i) => ({
-        postId: post.id,
-        mediaId,
-        sortOrder: i,
-      })),
-    });
+  if (data.mediaItems?.length) {
+    await syncPostMedia(post.id, data.mediaItems);
+  } else if (data.mediaIds?.length) {
+    await syncPostMedia(
+      post.id,
+      data.mediaIds.map((mediaId) => ({ mediaId }))
+    );
   }
 
   return NextResponse.json(post, { status: 201 });
