@@ -59,6 +59,7 @@ export default async function EditPostPage({ params }: Params) {
           tagIds: post.tags.map((t) => t.id),
           mediaIds: post.mediaItems.map((m) => m.mediaId),
           initialMedia: post.mediaItems.map((m) => m.media),
+          initialMediaItems: post.mediaItems.map((m) => ({ media: m.media, caption: m.caption })),
         }}
       />
     </div>
