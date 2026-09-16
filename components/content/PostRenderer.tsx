@@ -167,24 +167,20 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
           </SpeechBubble>
         )}
         {polaroids.length > 0 && (
-          <div className="relative min-h-[400px]">
-            {polaroids.map((item, i) => (
-              <Polaroid
-                key={item.media.id}
-                photo={<img src={resolveMediaUrl(item.media.url)} alt={item.caption ?? ""} className="w-full h-full object-cover" />}
-                caption={item.caption ?? item.media.originalName}
-                rotate={(i % 5) * 4 - 8}
-                className={`absolute w-36 sm:w-44 ${[
-                  "top-0 left-[5%]",
-                  "top-12 right-[8%]",
-                  "top-40 left-[20%]",
-                  "top-32 right-[15%]",
-                  "top-64 left-[10%]",
-                  "top-56 right-[5%]",
-                ][i % 6]}`}
-              />
-            ))}
-          </div>
+          <section className="paper-card relative p-5 sm:p-8 rotate-[0.3deg] mb-8">
+            <span aria-hidden className="washi -top-4 left-1/2 -translate-x-1/2 rotate-[3deg]" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-7 justify-items-center">
+              {polaroids.map((item, i) => (
+                <Polaroid
+                  key={item.media.id}
+                  photo={<img src={resolveMediaUrl(item.media.url)} alt={item.caption ?? ""} className="w-full h-full object-cover" />}
+                  caption={item.caption ?? item.media.originalName}
+                  rotate={[-6, 4, -3, 5, -4, 3, -5, 2][i % 8]}
+                  className="w-full max-w-[190px]"
+                />
+              ))}
+            </div>
+          </section>
         )}
         <TipTapContent content={post.content} />
         <PostAttachedMedia items={post.mediaItems.filter((m) => !m.media.mimeType.startsWith("image/"))} />
