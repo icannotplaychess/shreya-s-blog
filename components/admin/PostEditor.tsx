@@ -29,10 +29,12 @@ interface PostData {
   type: ContentTypeValue;
   status: PostStatusValue;
   coverImageId: string | null;
+  coverImageUrl?: string | null;
   metadata: string;
   categoryIds: string[];
   tagIds: string[];
   mediaIds: string[];
+  initialMedia?: Media[];
 }
 
 export function PostEditor({
@@ -51,7 +53,7 @@ export function PostEditor({
   const [type, setType] = useState<ContentTypeValue>(initial?.type ?? "BLOG");
   const [status, setStatus] = useState<PostStatusValue>(initial?.status ?? "DRAFT");
   const [coverImageId, setCoverImageId] = useState<string | null>(initial?.coverImageId ?? null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(initial?.coverImageUrl ?? null);
   const [metadata, setMetadata] = useState(initial?.metadata ?? "{}");
   const [playlistTracks, setPlaylistTracks] = useState<PlaylistTrackItem[]>(() =>
     parsePlaylistTracks(initial?.metadata ?? "{}")
@@ -69,6 +71,7 @@ export function PostEditor({
   const [mediaIds, setMediaIds] = useState<string[]>(initial?.mediaIds ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [savedMessage, setSavedMessage] = useState("");
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [mediaPickerTarget, setMediaPickerTarget] = useState<"cover" | "content" | "gallery">("content");
 
@@ -120,6 +123,7 @@ export function PostEditor({
 
     setSaving(true);
     setError("");
+    setSavedMessage("");
 
     const metaPayload = JSON.stringify({
       ...metaObj,
@@ -160,7 +164,17 @@ export function PostEditor({
         throw new Error("Post saved but the server did not return an id. Check your database setup.");
       }
 
-      router.push(`/admin/posts/${data.id}/edit`);
+      const newStatus = publishNow ? "PUBLISHED" : status;
+      setStatus(newStatus);
+      setSavedMessage(
+        publishNow || newStatus === "PUBLISHED"
+          ? "Published! You can keep editing and add more media below."
+          : "Draft saved."
+      );
+
+      if (!initial?.id) {
+        router.push(`/admin/posts/${data.id}/edit`);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save");
@@ -192,6 +206,7 @@ export function PostEditor({
   return (
     <div className="space-y-6">
       {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
+      {savedMessage && <div className="p-3 bg-green-50 text-green-800 rounded-lg text-sm border border-green-200">{savedMessage}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
@@ -285,6 +300,9 @@ export function PostEditor({
               <option value="DRAFT">Draft</option>
               <option value="PUBLISHED">Published</option>
             </select>
+            <p className="text-xs text-slate-500">
+              Set status to Published and click Save, or use Publish to go live immediately.
+            </p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -292,7 +310,7 @@ export function PostEditor({
                 disabled={saving}
                 className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium disabled:opacity-50"
               >
-                {saving ? "Saving..." : "Save"}
+                {saving ? "Saving..." : status === "PUBLISHED" ? "Save changes" : "Save draft"}
               </button>
               <button
                 type="button"
@@ -300,7 +318,7 @@ export function PostEditor({
                 disabled={saving}
                 className="flex-1 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg text-sm font-medium disabled:opacity-50"
               >
-                Publish
+                {saving ? "Publishing..." : status === "PUBLISHED" ? "Update published" : "Publish now"}
               </button>
             </div>
           </div>
@@ -308,7 +326,7 @@ export function PostEditor({
           <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
             <h3 className="font-medium text-sm">Cover image</h3>
             {coverPreview && (
-              <img src={coverPreview} alt="Cover" className="w-full h-32 object-cover rounded-lg" />
+              <img src={resolveMediaUrl(coverPreview)} alt="Cover" className="w-full h-32 object-cover rounded-lg" />
             )}
             <button
               type="button"
@@ -322,7 +340,7 @@ export function PostEditor({
             </button>
           </div>
 
-          <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} />
+          <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} initialItems={initial?.initialMedia} />
 
           <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
             <h3 className="font-medium text-sm">Categories</h3>
