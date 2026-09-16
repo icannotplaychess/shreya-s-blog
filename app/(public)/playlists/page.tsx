@@ -1,4 +1,6 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MusicPlayer } from "@/components/widgets/MusicPlayer";
 import { CdCaseGrid } from "@/components/music/CdCaseGrid";
@@ -6,12 +8,18 @@ import { SongOfTheWeek } from "@/components/music/SongOfTheWeek";
 import { StickyNote } from "@/components/ui/SpeechBubble";
 import { CmsPostFeed } from "@/components/content/CmsPostFeed";
 
-export const metadata: Metadata = {
-  title: "Playlists ~ Shankie's",
-  description: "burned CDs, cassette rips & the sacred profile song.",
-};
-
 export default function PlaylistsPage() {
+  const [song, setSong] = useState({ title: "", artist: "", note: "" });
+
+  useEffect(() => {
+    fetch("/api/public/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.homepage?.songOfTheWeek) setSong(data.homepage.songOfTheWeek);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div>
       <PageHeader
@@ -26,7 +34,7 @@ export default function PlaylistsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6 items-start">
         <div className="space-y-5">
           <MusicPlayer />
-          <SongOfTheWeek />
+          <SongOfTheWeek title={song.title} artist={song.artist} note={song.note} />
           <StickyNote color="#c9f4ff" rotate={-2}>
             <p className="font-indie text-sm text-inkberry">
               track order is a SCIENCE: opener must slap, track 3 is for crying, last track must be

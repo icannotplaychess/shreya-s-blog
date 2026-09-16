@@ -8,6 +8,9 @@ import { Sticker, WordSticker } from "@/components/ui/Sticker";
 import { Polaroid } from "@/components/ui/Polaroid";
 import { SpeechBubble } from "@/components/ui/SpeechBubble";
 import { Starburst } from "@/components/ui/Starburst";
+import { PlaylistAudioPlayer } from "@/components/music/PlaylistAudioPlayer";
+import { parsePlaylistTracks } from "@/lib/site-content-defaults";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 function TipTapContent({ content }: { content: string }) {
   const doc = parsePostContent(content);
@@ -59,7 +62,7 @@ export function PostCard({ post }: { post: PostWithRelations }) {
     <Link href={href} className="paper-card block p-4 sm:p-5 hover:scale-[1.01] transition-transform -rotate-[0.3deg] group">
       {post.coverImage && (
         <div className="mb-3 overflow-hidden rounded-lg border-4 border-white shadow-md -rotate-1">
-          <img src={post.coverImage.url} alt={post.title} className="w-full h-40 object-cover" />
+          <img src={resolveMediaUrl(post.coverImage.url)} alt={post.title} className="w-full h-40 object-cover" />
         </div>
       )}
       <span className="font-pixel text-[9px] text-grape uppercase tracking-widest">{post.type.replace("_", " ")}</span>
@@ -110,7 +113,7 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
           {images.map((img, i) => (
             <Polaroid
               key={img.id}
-              photo={<img src={img.url} alt={img.alt ?? ""} className="w-full h-full object-cover" />}
+              photo={<img src={resolveMediaUrl(img.url)} alt={img.alt ?? ""} className="w-full h-full object-cover" />}
               caption={img.alt ?? ""}
               rotate={(i % 5) * 4 - 8}
               className={`absolute w-36 sm:w-44 ${[
@@ -130,32 +133,18 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
   }
 
   if (post.type === "PLAYLIST") {
+    const tracks = parsePlaylistTracks(post.metadata);
     return (
-      <article className="paper-card p-6 sm:p-8 -rotate-[0.3deg]">
-        <div className="flex items-start gap-6">
-          {post.coverImage && (
-            <div className="shrink-0 w-32 h-32 rounded-lg overflow-hidden border-4 border-white shadow-lg -rotate-3">
-              <img src={post.coverImage.url} alt="" className="w-full h-full object-cover" />
-            </div>
-          )}
-          <div>
-            <CutoutHeading text={post.title} className="text-3xl sm:text-4xl" />
-            {meta.artist && <p className="font-chewy text-xl text-grape mt-1">{meta.artist}</p>}
-            {meta.mood && <WordSticker text={meta.mood} palette={4} rotate={3} className="mt-2" />}
-          </div>
-        </div>
-        {meta.tracks && (
-          <ol className="mt-6 space-y-2 font-mono text-sm bg-black/5 rounded-lg p-4">
-            {meta.tracks.split("\n").filter(Boolean).map((track, i) => (
-              <li key={i} className="flex gap-3">
-                <span className="text-hotpink font-bold">{String(i + 1).padStart(2, "0")}.</span>
-                {track}
-              </li>
-            ))}
-          </ol>
-        )}
+      <>
+        <PlaylistAudioPlayer
+          title={post.title}
+          artist={meta.artist}
+          mood={meta.mood}
+          tracks={tracks}
+          coverUrl={post.coverImage?.url}
+        />
         <div className="mt-6"><TipTapContent content={post.content} /></div>
-      </article>
+      </>
     );
   }
 
@@ -166,7 +155,7 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
       </div>
       {post.coverImage && (
         <div className="mb-6 -mx-2 sm:-mx-4 overflow-hidden border-4 border-white shadow-lg rotate-1">
-          <img src={post.coverImage.url} alt={post.title} className="w-full max-h-80 object-cover" />
+          <img src={resolveMediaUrl(post.coverImage.url)} alt={post.title} className="w-full max-h-80 object-cover" />
         </div>
       )}
       <span className="font-pixel text-[9px] text-grape uppercase tracking-widest">{post.type.replace("_", " ")}</span>

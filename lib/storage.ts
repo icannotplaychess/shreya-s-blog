@@ -8,11 +8,17 @@ export function getStorageMode(): "vercel-blob" | "local-files" {
   return process.env.BLOB_READ_WRITE_TOKEN ? "vercel-blob" : "local-files";
 }
 
+function blobAccess(): "public" | "private" {
+  const configured = process.env.BLOB_ACCESS?.trim().toLowerCase();
+  if (configured === "public" || configured === "private") return configured;
+  return "private";
+}
+
 export async function saveUploadedFile(file: File, filename: string): Promise<string> {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (token) {
     const blob = await put(`uploads/${filename}`, file, {
-      access: "public",
+      access: blobAccess(),
       token,
     });
     return blob.url;

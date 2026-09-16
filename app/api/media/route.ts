@@ -14,8 +14,13 @@ const ALLOWED_TYPES = [
   "image/gif",
   "video/mp4",
   "audio/mpeg",
+  "audio/mp3",
   "audio/wav",
   "audio/ogg",
+  "audio/mp4",
+  "audio/x-m4a",
+  "audio/aac",
+  "audio/webm",
   "application/pdf",
 ];
 
