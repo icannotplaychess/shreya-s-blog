@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { WordSticker } from "@/components/ui/Sticker";
 import { SpeechBubble } from "@/components/ui/SpeechBubble";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 const RARITY_COLORS: Record<string, string> = {
   LEGENDARY: "bg-gradient-to-r from-tangerine to-lemon text-inkberry",
@@ -35,7 +36,11 @@ export function TreasureBox() {
             className="flex items-start gap-3 bg-white/85 rounded-2xl border-[3px] border-bubblegum p-3.5 shadow-[4px_5px_0_rgba(255,119,200,0.4)]"
             style={{ rotate: `${i % 2 ? 0.8 : -0.8}deg` }}
           >
-            <span className="text-3xl shrink-0 anim-bounce-tiny" style={{ animationDelay: `${i * 0.2}s` }} aria-hidden>{t.emoji}</span>
+            {t.imageUrl ? (
+              <img src={resolveMediaUrl(t.imageUrl)} alt={t.name} className="w-12 h-12 shrink-0 object-cover rounded border-2 border-bubblegum" />
+            ) : (
+              <span className="text-3xl shrink-0 anim-bounce-tiny" style={{ animationDelay: `${i * 0.2}s` }} aria-hidden>{t.emoji}</span>
+            )}
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="font-chewy text-base text-inkberry">{t.name}</p>

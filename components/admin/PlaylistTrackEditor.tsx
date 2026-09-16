@@ -7,9 +7,13 @@ import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 export function PlaylistTrackEditor({
   tracks,
   onChange,
+  label = "Playlist tracks",
+  emptyHint = "No tracks yet. Add one and upload an MP3.",
 }: {
   tracks: PlaylistTrackItem[];
   onChange: (tracks: PlaylistTrackItem[]) => void;
+  label?: string;
+  emptyHint?: string;
 }) {
   const [uploading, setUploading] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -42,7 +46,7 @@ export function PlaylistTrackEditor({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-sm">Playlist tracks</h4>
+        <h4 className="font-medium text-sm">{label}</h4>
         <button
           type="button"
           onClick={addTrack}
@@ -55,7 +59,7 @@ export function PlaylistTrackEditor({
       {error && <p className="text-xs text-red-600">{error}</p>}
 
       {tracks.length === 0 && (
-        <p className="text-xs text-slate-500">No tracks yet. Add one and upload an MP3.</p>
+        <p className="text-xs text-slate-500">{emptyHint}</p>
       )}
 
       {tracks.map((track, index) => (

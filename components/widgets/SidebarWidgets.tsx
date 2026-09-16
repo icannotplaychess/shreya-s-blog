@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { useSiteContent } from "@/components/providers/SiteContentProvider";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function WidgetWindow({
   title,
@@ -143,7 +144,11 @@ export function PixelPet() {
           className="text-2xl font-pixel select-none"
           aria-label={`pixel pet ${sidebar.pixelPet.name}`}
         >
-          🐹
+          {sidebar.pixelPet.imageUrl ? (
+            <img src={resolveMediaUrl(sidebar.pixelPet.imageUrl)} alt={sidebar.pixelPet.name} className="w-10 h-10 object-cover rounded" />
+          ) : (
+            "🐹"
+          )}
         </motion.div>
         <p className="font-pixel text-[9px] mt-1 text-[#20536e]">{face}</p>
         <button
@@ -163,7 +168,11 @@ export function WeatherWidget() {
   return (
     <WidgetWindow title={sidebar.weather.title} rotate={1}>
       <div className="flex items-center gap-3">
-        <span className="text-4xl anim-floaty" aria-hidden>🌤️</span>
+        {sidebar.weather.iconUrl ? (
+          <img src={resolveMediaUrl(sidebar.weather.iconUrl)} alt="" className="w-12 h-12 object-cover rounded anim-floaty" />
+        ) : (
+          <span className="text-4xl anim-floaty" aria-hidden>🌤️</span>
+        )}
         <div>
           <p className="font-lucky text-xl text-tangerine">{sidebar.weather.temp}</p>
           <p className="font-comic text-xs text-inkberry">{sidebar.weather.description}</p>
@@ -181,9 +190,13 @@ export function WeatherWidget() {
 export function CalendarWidget() {
   const { sidebar } = useSiteContent();
   const days = ["S", "M", "T", "W", "T", "F", "S"];
-  const { specialDay, heartDay } = sidebar.calendar;
+  const { specialDay, heartDay, month = 7, year = 2007 } = sidebar.calendar;
+  const monthLabel = new Date(year, month - 1).toLocaleString("en", { month: "long", year: "numeric" });
   return (
-    <WidgetWindow title={sidebar.calendar.title} rotate={-1.5}>
+    <WidgetWindow title={sidebar.calendar.title || `📅 ${monthLabel}`} rotate={-1.5}>
+      {sidebar.calendar.imageUrl && (
+        <img src={resolveMediaUrl(sidebar.calendar.imageUrl)} alt="" className="w-full h-16 object-cover rounded mb-2 border border-bubblegum" />
+      )}
       <table className="w-full text-center font-fredoka text-[11px]">
         <thead>
           <tr>
@@ -230,10 +243,14 @@ export function BlinkieWall() {
         {sidebar.blinkies.items.map((b, i) => (
           <span
             key={b.text}
-            className={`w-full max-w-[210px] text-center font-pixel text-[8px] text-white py-1.5 border-2 border-white shadow-[2px_2px_0_rgba(61,18,48,0.4)] ${i % 2 ? "anim-softblink" : ""}`}
-            style={{ background: b.bg }}
+            className={`w-full max-w-[210px] text-center font-pixel text-[8px] text-white py-1.5 border-2 border-white shadow-[2px_2px_0_rgba(61,18,48,0.4)] overflow-hidden ${i % 2 ? "anim-softblink" : ""}`}
+            style={b.imageUrl ? undefined : { background: b.bg }}
           >
-            {b.text}
+            {b.imageUrl ? (
+              <img src={resolveMediaUrl(b.imageUrl)} alt={b.text} className="w-full h-6 object-cover" />
+            ) : (
+              b.text
+            )}
           </span>
         ))}
       </div>
@@ -252,7 +269,11 @@ export function BestFriends() {
             whileHover={{ scale: 1.06, rotate: -2 }}
             className="bg-white/80 rounded-lg border-2 border-bubblegum p-2 text-center"
           >
-            <span className="text-2xl" aria-hidden>{f.emoji}</span>
+            {f.avatarUrl ? (
+              <img src={resolveMediaUrl(f.avatarUrl)} alt={f.name} className="w-10 h-10 mx-auto rounded-full object-cover border-2 border-bubblegum" />
+            ) : (
+              <span className="text-2xl" aria-hidden>{f.emoji}</span>
+            )}
             <p className="font-chewy text-sm text-magenta">{f.name}</p>
             <p className="font-indie text-[10px] text-inkberry">{f.note}</p>
           </motion.div>

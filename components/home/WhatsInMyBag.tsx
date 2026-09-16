@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { WordSticker } from "@/components/ui/Sticker";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function WhatsInMyBag() {
   const { bag } = useSiteContent();
@@ -32,6 +33,9 @@ export function WhatsInMyBag() {
             className={`absolute ${item.pos} max-w-[150px] sm:max-w-[180px]`}
           >
             <div className="bg-white/95 border-2 border-dashed border-hotpink rounded-xl p-2 shadow-[3px_3px_0_rgba(255,31,143,0.35)]">
+              {item.imageUrl && (
+                <img src={resolveMediaUrl(item.imageUrl)} alt={item.label} className="w-full h-16 object-cover rounded mb-1 border border-bubblegum" />
+              )}
               <p className="font-chewy text-[12px] sm:text-sm text-inkberry leading-tight">
                 <span aria-hidden>{item.emoji}</span> {item.label}
               </p>

@@ -5,6 +5,7 @@ import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { Polaroid } from "@/components/ui/Polaroid";
 import { DoodlePhoto } from "@/components/ui/DoodlePhoto";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function LifeLately() {
   const { girlhood } = useSiteContent();
@@ -34,7 +35,13 @@ export function LifeLately() {
           {lifeLately.polaroids.map((p, i) => (
             <Polaroid
               key={p.caption}
-              photo={<DoodlePhoto kind={p.kind as "sunset" | "chai" | "butterfly"} />}
+              photo={
+                p.imageUrl ? (
+                  <img src={resolveMediaUrl(p.imageUrl)} alt={p.caption} className="w-full h-full object-cover" />
+                ) : (
+                  <DoodlePhoto kind={p.kind as "sunset" | "chai" | "butterfly"} />
+                )
+              }
               caption={p.caption}
               rotate={i % 2 ? 5 : -4}
               className="w-36"

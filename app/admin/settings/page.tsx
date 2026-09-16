@@ -14,6 +14,7 @@ import {
   type AboutFaq,
 } from "@/lib/site-content";
 import { Field, StringListEditor, SaveButton } from "@/components/admin/settings/SettingsEditors";
+import { MediaUrlField } from "@/components/admin/settings/MediaUrlField";
 import { uploadMediaFromBrowser } from "@/lib/upload-media-client";
 
 type TabId =
@@ -290,6 +291,8 @@ export default function AdminSettingsPage() {
             <Field label="Mood" value={hp.mood} onChange={(v) => patch("homepage", { ...hp, mood: v })} />
             <Field label="Quote" value={hp.quote} onChange={(v) => patch("homepage", { ...hp, quote: v })} />
             <Field label="Polaroid caption" value={hp.polaroidCaption} onChange={(v) => patch("homepage", { ...hp, polaroidCaption: v })} />
+            <MediaUrlField label="Polaroid photo" value={hp.polaroidImageUrl} onChange={(v) => patch("homepage", { ...hp, polaroidImageUrl: v })} accept="image/*" hint="Upload a photo for the homepage polaroid (replaces doodle art)." />
+            <MediaUrlField label="Sticker graphic" value={hp.stickerImageUrl} onChange={(v) => patch("homepage", { ...hp, stickerImageUrl: v })} accept="image/*" hint="Optional custom sticker image next to the polaroid." />
             <Field label="Guestbook CTA" value={hp.guestbookCta} onChange={(v) => patch("homepage", { ...hp, guestbookCta: v })} />
             <Field label="About CTA" value={hp.aboutCta} onChange={(v) => patch("homepage", { ...hp, aboutCta: v })} />
             <Field label="Sections heading" value={hp.sectionsHeading} onChange={(v) => patch("homepage", { ...hp, sectionsHeading: v })} />
@@ -336,6 +339,7 @@ export default function AdminSettingsPage() {
             </Card>
 
             <Card title="Pixel pet">
+              <MediaUrlField label="Pet image" value={sb.pixelPet.imageUrl} onChange={(v) => patch("sidebar", { ...sb, pixelPet: { ...sb.pixelPet, imageUrl: v } })} accept="image/*" />
               <Field label="Title" value={sb.pixelPet.title} onChange={(v) => patch("sidebar", { ...sb, pixelPet: { ...sb.pixelPet, title: v } })} />
               <Field label="Name" value={sb.pixelPet.name} onChange={(v) => patch("sidebar", { ...sb, pixelPet: { ...sb.pixelPet, name: v } })} />
               <Field label="Feed button" value={sb.pixelPet.feedButton} onChange={(v) => patch("sidebar", { ...sb, pixelPet: { ...sb.pixelPet, feedButton: v } })} />
@@ -345,6 +349,7 @@ export default function AdminSettingsPage() {
             </Card>
 
             <Card title="Weather">
+              <MediaUrlField label="Weather icon" value={sb.weather.iconUrl} onChange={(v) => patch("sidebar", { ...sb, weather: { ...sb.weather, iconUrl: v } })} accept="image/*" />
               <Field label="Title" value={sb.weather.title} onChange={(v) => patch("sidebar", { ...sb, weather: { ...sb.weather, title: v } })} />
               <Field label="Temperature" value={sb.weather.temp} onChange={(v) => patch("sidebar", { ...sb, weather: { ...sb.weather, temp: v } })} />
               <Field label="Description" value={sb.weather.description} onChange={(v) => patch("sidebar", { ...sb, weather: { ...sb.weather, description: v } })} />
@@ -353,6 +358,11 @@ export default function AdminSettingsPage() {
 
             <Card title="Calendar">
               <Field label="Title" value={sb.calendar.title} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, title: v } })} />
+              <div className="grid grid-cols-2 gap-2">
+                <NumberField label="Month (1-12)" value={sb.calendar.month ?? 7} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, month: v } })} />
+                <NumberField label="Year" value={sb.calendar.year ?? 2007} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, year: v } })} />
+              </div>
+              <MediaUrlField label="Header image" value={sb.calendar.imageUrl} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, imageUrl: v } })} accept="image/*" />
               <Field label="Footer note" value={sb.calendar.footerNote} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, footerNote: v } })} />
               <NumberField label="Special day" value={sb.calendar.specialDay} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, specialDay: v } })} />
               <NumberField label="Heart day" value={sb.calendar.heartDay} onChange={(v) => patch("sidebar", { ...sb, calendar: { ...sb.calendar, heartDay: v } })} />
@@ -372,6 +382,11 @@ export default function AdminSettingsPage() {
                     items[i] = { ...items[i], bg: v };
                     patch("sidebar", { ...sb, blinkies: { ...sb.blinkies, items } });
                   }} />
+                  <MediaUrlField label="Blinkie image (optional)" value={item.imageUrl} onChange={(v) => {
+                    const items = [...sb.blinkies.items];
+                    items[i] = { ...items[i], imageUrl: v };
+                    patch("sidebar", { ...sb, blinkies: { ...sb.blinkies, items } });
+                  }} accept="image/*" hint="Upload a GIF/image blinkie instead of CSS gradient text." />
                   <RemoveButton onClick={() => patch("sidebar", { ...sb, blinkies: { ...sb.blinkies, items: sb.blinkies.items.filter((_, j) => j !== i) } })} />
                 </div>
               ))}
@@ -399,6 +414,11 @@ export default function AdminSettingsPage() {
                       patch("sidebar", { ...sb, bestFriends: { ...sb.bestFriends, friends } });
                     }} />
                   </div>
+                  <MediaUrlField label="Avatar photo" value={friend.avatarUrl} onChange={(v) => {
+                    const friends = [...sb.bestFriends.friends];
+                    friends[i] = { ...friends[i], avatarUrl: v };
+                    patch("sidebar", { ...sb, bestFriends: { ...sb.bestFriends, friends } });
+                  }} accept="image/*" />
                   <RemoveButton onClick={() => patch("sidebar", { ...sb, bestFriends: { ...sb.bestFriends, friends: sb.bestFriends.friends.filter((_, j) => j !== i) } })} />
                 </div>
               ))}
@@ -494,6 +514,7 @@ export default function AdminSettingsPage() {
                   <Field label="Position (CSS)" value={item.pos} onChange={(v) => updateBagItem(content, patch, i, { pos: v })} />
                   <SelectField label="Arrow side" value={item.arrowSide} options={[{ value: "left", label: "Left" }, { value: "right", label: "Right" }]} onChange={(v) => updateBagItem(content, patch, i, { arrowSide: v as "left" | "right" })} />
                 </div>
+                <MediaUrlField label="Item photo" value={item.imageUrl} onChange={(v) => updateBagItem(content, patch, i, { imageUrl: v })} accept="image/*" />
                 <RemoveButton onClick={() => patch("bag", { ...content.bag, items: content.bag.items.filter((_, j) => j !== i) })} />
               </Card>
             ))}
@@ -516,6 +537,7 @@ export default function AdminSettingsPage() {
                   <Field label="Background (Tailwind)" value={teaser.bg} onChange={(v) => updateTeaser(content, patch, i, { bg: v })} />
                   <NumberField label="Rotate (deg)" value={teaser.rotate} onChange={(v) => updateTeaser(content, patch, i, { rotate: v })} />
                 </div>
+                <MediaUrlField label="Card image" value={teaser.imageUrl} onChange={(v) => updateTeaser(content, patch, i, { imageUrl: v })} accept="image/*" />
                 <RemoveButton onClick={() => patch("teasers", content.teasers.filter((_, j) => j !== i))} />
               </Card>
             ))}
@@ -573,6 +595,9 @@ export default function AdminSettingsPage() {
                     <Field label="Art to color" value={track.art.to} onChange={(v) => updateMusicTrack(content, patch, index, { art: { ...track.art!, to: v } })} />
                   </div>
                 )}
+                {track.art && (
+                  <MediaUrlField label="Album art image" value={track.art.imageUrl} onChange={(v) => updateMusicTrack(content, patch, index, { art: { ...track.art!, imageUrl: v } })} accept="image/*" />
+                )}
                 <label className="inline-block px-3 py-1.5 bg-pink-600 text-white rounded text-xs cursor-pointer hover:bg-pink-700">
                   {uploading === index ? "Uploading..." : track.audioUrl ? "Replace MP3" : "Upload MP3"}
                   <input
@@ -616,6 +641,8 @@ export default function AdminSettingsPage() {
                     className="w-full px-2 py-1.5 border border-slate-300 rounded text-sm font-mono"
                   />
                 </div>
+                <MediaUrlField label="CD cover image" value={mix.coverImageUrl} onChange={(v) => updateCdMix(content, patch, index, { coverImageUrl: v })} accept="image/*" />
+                <MediaUrlField label="Preview MP3" value={mix.audioUrl} onChange={(v) => updateCdMix(content, patch, index, { audioUrl: v })} accept="audio/*,.mp3,.m4a,.wav,.ogg" />
                 <RemoveButton onClick={() => patch("cdMixes", content.cdMixes.filter((_, j) => j !== index))} />
               </Card>
             ))}
@@ -630,6 +657,7 @@ export default function AdminSettingsPage() {
             <Field label="Intro heading" value={content.about.introHeading} onChange={(v) => patch("about", { ...content.about, introHeading: v })} />
             <Field label="FAQ heading" value={content.about.faqHeading} onChange={(v) => patch("about", { ...content.about, faqHeading: v })} />
             <Field label="Polaroid caption" value={content.about.polaroidCaption} onChange={(v) => patch("about", { ...content.about, polaroidCaption: v })} />
+            <MediaUrlField label="Polaroid photo" value={content.about.polaroidImageUrl} onChange={(v) => patch("about", { ...content.about, polaroidImageUrl: v })} accept="image/*" />
             <Field label="Sticker text" value={content.about.stickerText} onChange={(v) => patch("about", { ...content.about, stickerText: v })} />
 
             <Card title="Stats">
@@ -740,17 +768,24 @@ export default function AdminSettingsPage() {
               <AddButton label="Add update" onClick={() => patch("girlhood", { ...content.girlhood, lifeLately: { ...content.girlhood.lifeLately, updates: [...content.girlhood.lifeLately.updates, { tag: "", text: "", bg: "from-lemon/70 to-tangerine/40" }] } })} />
               <p className="text-sm font-medium text-slate-700 pt-2">Polaroids</p>
               {content.girlhood.lifeLately.polaroids.map((pol, i) => (
-                <div key={i} className="border border-slate-200 rounded p-3 bg-white grid grid-cols-2 gap-2">
-                  <Field label="Caption" value={pol.caption} onChange={(v) => {
+                <div key={i} className="border border-slate-200 rounded p-3 bg-white space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="Caption" value={pol.caption} onChange={(v) => {
+                      const polaroids = [...content.girlhood.lifeLately.polaroids];
+                      polaroids[i] = { ...polaroids[i], caption: v };
+                      patch("girlhood", { ...content.girlhood, lifeLately: { ...content.girlhood.lifeLately, polaroids } });
+                    }} />
+                    <Field label="Doodle kind (fallback)" value={pol.kind} onChange={(v) => {
+                      const polaroids = [...content.girlhood.lifeLately.polaroids];
+                      polaroids[i] = { ...polaroids[i], kind: v };
+                      patch("girlhood", { ...content.girlhood, lifeLately: { ...content.girlhood.lifeLately, polaroids } });
+                    }} />
+                  </div>
+                  <MediaUrlField label="Photo" value={pol.imageUrl} onChange={(v) => {
                     const polaroids = [...content.girlhood.lifeLately.polaroids];
-                    polaroids[i] = { ...polaroids[i], caption: v };
+                    polaroids[i] = { ...polaroids[i], imageUrl: v };
                     patch("girlhood", { ...content.girlhood, lifeLately: { ...content.girlhood.lifeLately, polaroids } });
-                  }} />
-                  <Field label="Kind" value={pol.kind} onChange={(v) => {
-                    const polaroids = [...content.girlhood.lifeLately.polaroids];
-                    polaroids[i] = { ...polaroids[i], kind: v };
-                    patch("girlhood", { ...content.girlhood, lifeLately: { ...content.girlhood.lifeLately, polaroids } });
-                  }} />
+                  }} accept="image/*" />
                 </div>
               ))}
               <AddButton label="Add polaroid" onClick={() => patch("girlhood", { ...content.girlhood, lifeLately: { ...content.girlhood.lifeLately, polaroids: [...content.girlhood.lifeLately.polaroids, { caption: "", kind: "" }] } })} />
@@ -775,6 +810,7 @@ export default function AdminSettingsPage() {
                     <Field label="Background" value={item.bg} onChange={(v) => updateCandyItem(content, patch, i, { bg: v })} />
                   </div>
                   <Field label="Note" value={item.note} onChange={(v) => updateCandyItem(content, patch, i, { note: v })} />
+                  <MediaUrlField label="Photo" value={item.imageUrl} onChange={(v) => updateCandyItem(content, patch, i, { imageUrl: v })} accept="image/*" />
                   <RemoveButton onClick={() => patch("collections", { ...content.collections, candy: { ...content.collections.candy, items: content.collections.candy.items.filter((_, j) => j !== i) } })} />
                 </div>
               ))}
@@ -793,6 +829,7 @@ export default function AdminSettingsPage() {
                     <Field label="Rarity" value={item.rarity} onChange={(v) => updateTreasureItem(content, patch, i, { rarity: v })} />
                   </div>
                   <Field label="Detail" value={item.detail} onChange={(v) => updateTreasureItem(content, patch, i, { detail: v })} textarea />
+                  <MediaUrlField label="Photo" value={item.imageUrl} onChange={(v) => updateTreasureItem(content, patch, i, { imageUrl: v })} accept="image/*" />
                   <RemoveButton onClick={() => patch("collections", { ...content.collections, treasure: { ...content.collections.treasure, items: content.collections.treasure.items.filter((_, j) => j !== i) } })} />
                 </div>
               ))}
@@ -896,6 +933,7 @@ export default function AdminSettingsPage() {
                     <NumberField label="Rotate" value={tile.rotate} onChange={(v) => updateMoodTile(content, patch, i, { rotate: v })} />
                     <Field label="Span (optional)" value={tile.span || ""} onChange={(v) => updateMoodTile(content, patch, i, { span: v || undefined })} />
                   </div>
+                  <MediaUrlField label="Tile image" value={tile.imageUrl} onChange={(v) => updateMoodTile(content, patch, i, { imageUrl: v })} accept="image/*" />
                   <RemoveButton onClick={() => patch("style", { ...content.style, moodboard: { ...content.style.moodboard, tiles: content.style.moodboard.tiles.filter((_, j) => j !== i) } })} />
                 </div>
               ))}
@@ -951,6 +989,8 @@ export default function AdminSettingsPage() {
             <Field label="Artist" value={content.songOfTheWeek.artist} onChange={(v) => patch("songOfTheWeek", { ...content.songOfTheWeek, artist: v })} />
             <Field label="Note / lyrics" value={content.songOfTheWeek.note} onChange={(v) => patch("songOfTheWeek", { ...content.songOfTheWeek, note: v })} textarea />
             <Field label="Disclaimer" value={content.songOfTheWeek.disclaimer} onChange={(v) => patch("songOfTheWeek", { ...content.songOfTheWeek, disclaimer: v })} />
+            <MediaUrlField label="Cover image" value={content.songOfTheWeek.coverImageUrl} onChange={(v) => patch("songOfTheWeek", { ...content.songOfTheWeek, coverImageUrl: v })} accept="image/*" />
+            <MediaUrlField label="MP3 audio" value={content.songOfTheWeek.audioUrl} onChange={(v) => patch("songOfTheWeek", { ...content.songOfTheWeek, audioUrl: v })} accept="audio/*,.mp3,.m4a,.wav,.ogg" />
           </>
         )}
 

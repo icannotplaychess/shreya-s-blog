@@ -5,11 +5,14 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import { AudioBlock, VideoBlock } from "@/lib/tiptap-media-extensions";
 import { CONTENT_TYPES, POST_STATUSES, type ContentTypeValue, type PostStatusValue } from "@/lib/content-types";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MediaPicker } from "./MediaPicker";
 import { PlaylistTrackEditor } from "./PlaylistTrackEditor";
+import { PostMediaPanel } from "./PostMediaPanel";
+import { resolveMediaUrl } from "@/lib/media-url";
 import { formatApiError } from "@/lib/api-errors";
 import { parsePlaylistTracks, type PlaylistTrackItem } from "@/lib/site-content-defaults";
 
@@ -53,6 +56,14 @@ export function PostEditor({
   const [playlistTracks, setPlaylistTracks] = useState<PlaylistTrackItem[]>(() =>
     parsePlaylistTracks(initial?.metadata ?? "{}")
   );
+  const [audioTracks, setAudioTracks] = useState<PlaylistTrackItem[]>(() => {
+    try {
+      const meta = JSON.parse(initial?.metadata ?? "{}") as { audioTracks?: PlaylistTrackItem[] };
+      return Array.isArray(meta.audioTracks) ? meta.audioTracks : [];
+    } catch {
+      return [];
+    }
+  });
   const [categoryIds, setCategoryIds] = useState<string[]>(initial?.categoryIds ?? []);
   const [tagIds, setTagIds] = useState<string[]>(initial?.tagIds ?? []);
   const [mediaIds, setMediaIds] = useState<string[]>(initial?.mediaIds ?? []);
@@ -67,6 +78,8 @@ export function PostEditor({
       Image.configure({ inline: true }),
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: "Start writing your post..." }),
+      AudioBlock,
+      VideoBlock,
     ],
     content: initial?.content ? JSON.parse(initial.content) : undefined,
     immediatelyRender: false,
@@ -83,8 +96,13 @@ export function PostEditor({
         setCoverImageId(media.id);
         setCoverPreview(media.url);
       } else if (mediaPickerTarget === "content" && editor) {
+        const src = resolveMediaUrl(media.url);
         if (media.mimeType.startsWith("image/")) {
-          editor.chain().focus().setImage({ src: media.url, alt: media.originalName }).run();
+          editor.chain().focus().setImage({ src, alt: media.originalName }).run();
+        } else if (media.mimeType.startsWith("audio/")) {
+          editor.chain().focus().insertContent({ type: "audioBlock", attrs: { src, title: media.originalName } }).run();
+        } else if (media.mimeType.startsWith("video/")) {
+          editor.chain().focus().insertContent({ type: "videoBlock", attrs: { src, title: media.originalName } }).run();
         }
       } else if (mediaPickerTarget === "gallery") {
         setMediaIds((prev) => [...prev, media.id]);
@@ -103,10 +121,11 @@ export function PostEditor({
     setSaving(true);
     setError("");
 
-    const metaPayload =
-      type === "PLAYLIST"
-        ? JSON.stringify({ ...metaObj, playlistTracks })
-        : metadata;
+    const metaPayload = JSON.stringify({
+      ...metaObj,
+      ...(type === "PLAYLIST" ? { playlistTracks } : {}),
+      ...(type !== "PLAYLIST" && audioTracks.length > 0 ? { audioTracks } : {}),
+    });
 
     const payload = {
       title,
@@ -218,7 +237,7 @@ export function PostEditor({
                 }}
                 className="text-xs text-pink-600 hover:underline"
               >
-                Insert image
+                Insert media
               </button>
             </div>
             <div className="border border-slate-300 rounded-lg overflow-hidden bg-white">
@@ -303,21 +322,7 @@ export function PostEditor({
             </button>
           </div>
 
-          {(type === "PHOTO_DUMP" || type === "MOODBOARD" || type === "COLLECTION") && (
-            <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
-              <h3 className="font-medium text-sm">Gallery images ({mediaIds.length})</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setMediaPickerTarget("gallery");
-                  setShowMediaPicker(true);
-                }}
-                className="w-full py-2 border border-dashed border-slate-300 rounded-lg text-sm text-slate-600 hover:border-pink-400"
-              >
-                Add gallery image
-              </button>
-            </div>
-          )}
+          <PostMediaPanel mediaIds={mediaIds} onChange={setMediaIds} />
 
           <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
             <h3 className="font-medium text-sm">Categories</h3>
@@ -355,37 +360,45 @@ export function PostEditor({
             ))}
           </div>
 
-          {(type === "DIARY" || type === "PLAYLIST" || type === "QUIZ") && (
-            <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
-              <h3 className="font-medium text-sm">Type-specific fields</h3>
+          <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+            <h3 className="font-medium text-sm">Type-specific fields</h3>
+            {(type === "DIARY" || type === "PLAYLIST" || type === "QUIZ") && (
               <input
                 value={metaObj.mood ?? ""}
                 onChange={(e) => updateMeta("mood", e.target.value)}
                 placeholder="Mood (e.g. dreamy ✨)"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
               />
-              {type === "PLAYLIST" && (
-                <>
-                  <input
-                    value={metaObj.artist ?? ""}
-                    onChange={(e) => updateMeta("artist", e.target.value)}
-                    placeholder="Playlist artist / curator"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                  />
-                  <PlaylistTrackEditor tracks={playlistTracks} onChange={setPlaylistTracks} />
-                </>
-              )}
-              {type === "QUIZ" && (
-                <textarea
-                  value={metaObj.quizData ?? ""}
-                  onChange={(e) => updateMeta("quizData", e.target.value)}
-                  placeholder='Quiz JSON: {"questions":[...],"results":[...]}'
-                  rows={6}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+            )}
+            {type === "PLAYLIST" && (
+              <>
+                <input
+                  value={metaObj.artist ?? ""}
+                  onChange={(e) => updateMeta("artist", e.target.value)}
+                  placeholder="Playlist artist / curator"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
                 />
-              )}
-            </div>
-          )}
+                <PlaylistTrackEditor tracks={playlistTracks} onChange={setPlaylistTracks} />
+              </>
+            )}
+            {type === "QUIZ" && (
+              <textarea
+                value={metaObj.quizData ?? ""}
+                onChange={(e) => updateMeta("quizData", e.target.value)}
+                placeholder='Quiz JSON: {"questions":[...],"results":[...]}'
+                rows={6}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono"
+              />
+            )}
+            {type !== "PLAYLIST" && (
+              <PlaylistTrackEditor
+                tracks={audioTracks}
+                onChange={setAudioTracks}
+                label="Audio tracks (MP3)"
+                emptyHint="Add MP3s to attach audio to this post."
+              />
+            )}
+          </div>
         </div>
       </div>
 

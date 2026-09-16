@@ -6,6 +6,7 @@ import { Polaroid } from "@/components/ui/Polaroid";
 import { DoodlePhoto } from "@/components/ui/DoodlePhoto";
 import { SpeechBubble } from "@/components/ui/SpeechBubble";
 import { Sticker, WordSticker } from "@/components/ui/Sticker";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function AboutMe() {
   const { about } = useSiteContent();
@@ -18,7 +19,18 @@ export function AboutMe() {
         <span aria-hidden className="washi washi-candy -top-3 right-12 rotate-[4deg]" />
         <div className="flex flex-col md:flex-row gap-6">
           <div className="shrink-0 flex flex-col items-center gap-3 mx-auto md:mx-0">
-            <Polaroid photo={<DoodlePhoto kind="butterfly" />} caption={about.polaroidCaption} rotate={-4} className="w-44" />
+            <Polaroid
+              photo={
+                about.polaroidImageUrl ? (
+                  <img src={resolveMediaUrl(about.polaroidImageUrl)} alt={about.polaroidCaption} className="w-full h-full object-cover" />
+                ) : (
+                  <DoodlePhoto kind="butterfly" />
+                )
+              }
+              caption={about.polaroidCaption}
+              rotate={-4}
+              className="w-44"
+            />
             <WordSticker text={about.stickerText} palette={5} rotate={3} />
             <Sticker size="text-3xl" className="anim-wiggle" rotate={-8}>🧿</Sticker>
           </div>

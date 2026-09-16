@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { Sticker, WordSticker } from "@/components/ui/Sticker";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function Moodboard() {
   const { style } = useSiteContent();
@@ -26,9 +27,13 @@ export function Moodboard() {
             transition={{ delay: i * 0.05 }}
             whileHover={{ rotate: 0, scale: 1.06, zIndex: 10 }}
             className={`relative rounded-xl border-[3px] border-white shadow-[4px_5px_0_rgba(61,18,48,0.3)] p-3 min-h-[110px] flex flex-col justify-end ${t.span ?? ""}`}
-            style={{ background: t.bg, rotate: `${t.rotate}deg` }}
+            style={t.imageUrl ? { rotate: `${t.rotate}deg` } : { background: t.bg, rotate: `${t.rotate}deg` }}
           >
-            <span className="absolute top-2 right-2 text-2xl" aria-hidden>{t.emoji}</span>
+            {t.imageUrl ? (
+              <img src={resolveMediaUrl(t.imageUrl)} alt={t.label} className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-90" />
+            ) : (
+              <span className="absolute top-2 right-2 text-2xl" aria-hidden>{t.emoji}</span>
+            )}
             <p className="font-lucky text-sm text-white drop-shadow-[1px_1px_0_rgba(0,0,0,0.4)]">{t.label}</p>
             <p className="font-indie text-[11px] text-white/90">{t.note}</p>
           </motion.div>

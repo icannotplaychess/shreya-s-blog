@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { WordSticker } from "@/components/ui/Sticker";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function CdCaseGrid() {
   const { cdMixes, collections } = useSiteContent();
@@ -25,8 +26,12 @@ export function CdCaseGrid() {
             style={{ rotate: `${i % 2 ? 1.4 : -1.4}deg` }}
           >
             <div className="relative p-4 flex items-center gap-3 border-b-[3px] border-inkberry" style={{ background: `linear-gradient(135deg, ${mix.from}, ${mix.to})` }}>
-              <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.8 }} className="w-14 h-14 rounded-full shrink-0 border-[3px] border-white/80 flex items-center justify-center text-xl" style={{ background: `conic-gradient(from 0deg, #fff5, ${mix.to}, #fff8, ${mix.from}, #fff5)` }} aria-hidden>
-                {mix.emoji}
+              <motion.div whileHover={{ rotate: 180 }} transition={{ duration: 0.8 }} className="w-14 h-14 rounded-full shrink-0 border-[3px] border-white/80 flex items-center justify-center text-xl overflow-hidden" style={mix.coverImageUrl ? undefined : { background: `conic-gradient(from 0deg, #fff5, ${mix.to}, #fff8, ${mix.from}, #fff5)` }} aria-hidden>
+                {mix.coverImageUrl ? (
+                  <img src={resolveMediaUrl(mix.coverImageUrl)} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  mix.emoji
+                )}
               </motion.div>
               <div className="min-w-0">
                 <p className="font-pixel text-[8px] text-white/90">{mix.vol} ~ {collections.cdMixedBy}</p>
@@ -41,6 +46,11 @@ export function CdCaseGrid() {
                 </li>
               ))}
             </ol>
+            {mix.audioUrl && (
+              <div className="p-3 border-t border-dashed border-bubblegum">
+                <audio src={resolveMediaUrl(mix.audioUrl)} controls className="w-full" />
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
