@@ -102,11 +102,15 @@ export function MusicPlayer({ className = "" }: { className?: string }) {
         <motion.div
           animate={playing ? { rotate: 360 } : { rotate: 0 }}
           transition={playing ? { repeat: Infinity, duration: 3.2, ease: "linear" } : { duration: 0.3 }}
-          className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/70 shadow-lg shrink-0 flex items-center justify-center text-2xl"
-          style={{ background: `conic-gradient(from 40deg, ${art.from}, ${art.to}, ${art.from})` }}
+          className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-white/70 shadow-lg shrink-0 flex items-center justify-center text-2xl overflow-hidden"
+          style={art.imageUrl ? undefined : { background: `conic-gradient(from 40deg, ${art.from}, ${art.to}, ${art.from})` }}
           aria-hidden
         >
-          <span className="drop-shadow">{art.emoji}</span>
+          {art.imageUrl ? (
+            <img src={resolveMediaUrl(art.imageUrl)} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="drop-shadow">{art.emoji}</span>
+          )}
           <span className="absolute w-4 h-4 rounded-full bg-[#120a1c] border-2 border-white/60" />
         </motion.div>
 

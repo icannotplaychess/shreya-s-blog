@@ -22,6 +22,7 @@ import { SpeechBubble, StickyNote } from "@/components/ui/SpeechBubble";
 import { Sticker, WordSticker } from "@/components/ui/Sticker";
 import { Polaroid } from "@/components/ui/Polaroid";
 import { DoodlePhoto } from "@/components/ui/DoodlePhoto";
+import { resolveMediaUrl } from "@/lib/media-url";
 import { CmsHomeSections } from "@/components/content/CmsHomeSections";
 
 export function CmsHomePage() {
@@ -54,8 +55,23 @@ export function CmsHomePage() {
                 </div>
               </div>
               <div className="mx-auto md:mx-0 shrink-0 flex flex-col gap-3">
-                <Polaroid photo={<DoodlePhoto kind="butterfly" />} caption={homepage.polaroidCaption} rotate={4} className="w-40" />
-                <Sticker className="self-end anim-wiggle" size="text-3xl" rotate={-10}>🧿</Sticker>
+                <Polaroid
+                  photo={
+                    homepage.polaroidImageUrl ? (
+                      <img src={resolveMediaUrl(homepage.polaroidImageUrl)} alt={homepage.polaroidCaption} className="w-full h-full object-cover" />
+                    ) : (
+                      <DoodlePhoto kind="butterfly" />
+                    )
+                  }
+                  caption={homepage.polaroidCaption}
+                  rotate={4}
+                  className="w-40"
+                />
+                {homepage.stickerImageUrl ? (
+                  <img src={resolveMediaUrl(homepage.stickerImageUrl)} alt="" className="w-12 h-12 self-end anim-wiggle object-contain" />
+                ) : (
+                  <Sticker className="self-end anim-wiggle" size="text-3xl" rotate={-10}>🧿</Sticker>
+                )}
               </div>
             </div>
           </section>

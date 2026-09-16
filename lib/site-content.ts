@@ -7,7 +7,7 @@ export interface MusicPlayerTrack {
   audioUrl?: string;
   notes?: number[];
   tempo?: number;
-  art?: { from: string; to: string; emoji: string };
+  art?: { from: string; to: string; emoji: string; imageUrl?: string };
 }
 
 export interface CdMix {
@@ -18,6 +18,8 @@ export interface CdMix {
   to: string;
   emoji: string;
   tracks: string[];
+  coverImageUrl?: string;
+  audioUrl?: string;
 }
 
 export interface AboutStat {
@@ -43,10 +45,12 @@ export interface HomepageContent {
   welcomeHeading: string;
   welcomeMessage: string;
   currentObsession: string;
-  songOfTheWeek: { title: string; artist: string; note: string };
+  songOfTheWeek: { title: string; artist: string; note: string; audioUrl?: string };
   mood: string;
   quote: string;
   polaroidCaption: string;
+  polaroidImageUrl?: string;
+  stickerImageUrl?: string;
   guestbookCta: string;
   aboutCta: string;
   sectionsHeading: string;
@@ -66,11 +70,11 @@ export interface SidebarContent {
     moodFallback: string;
   };
   quote: { title: string; attribution: string; fallback: string };
-  pixelPet: { title: string; name: string; feedButton: string; hungryMsg: string; fedMsg: string; fullMsg: string };
-  weather: { title: string; temp: string; description: string; forecast: string[] };
-  calendar: { title: string; footerNote: string; specialDay: number; heartDay: number };
-  blinkies: { title: string; items: { text: string; bg: string }[] };
-  bestFriends: { title: string; friends: { name: string; emoji: string; note: string }[] };
+  pixelPet: { title: string; name: string; feedButton: string; hungryMsg: string; fedMsg: string; fullMsg: string; imageUrl?: string };
+  weather: { title: string; temp: string; description: string; forecast: string[]; iconUrl?: string };
+  calendar: { title: string; footerNote: string; specialDay: number; heartDay: number; month?: number; year?: number; imageUrl?: string };
+  blinkies: { title: string; items: { text: string; bg: string; imageUrl?: string }[] };
+  bestFriends: { title: string; friends: { name: string; emoji: string; note: string; avatarUrl?: string }[] };
   obsession: { title: string; fallback: string; wishlist: string[] };
   musicPlayerTitle: string;
 }
@@ -94,6 +98,7 @@ export interface BagItem {
   note: string;
   pos: string;
   arrowSide: "left" | "right";
+  imageUrl?: string;
 }
 
 export interface BagContent {
@@ -112,6 +117,7 @@ export interface TeaserItem {
   bg: string;
   rotate: number;
   tag: string;
+  imageUrl?: string;
 }
 
 export interface PageHeaderSticker {
@@ -144,6 +150,7 @@ export interface AboutPageContent {
   stats: AboutStat[];
   faq: AboutFaq[];
   polaroidCaption: string;
+  polaroidImageUrl?: string;
   stickerText: string;
   introHeading: string;
   faqHeading: string;
@@ -155,7 +162,7 @@ export interface GirlhoodContent {
   lifeLately: {
     heading: string;
     updates: { tag: string; text: string; bg: string }[];
-    polaroids: { caption: string; kind: string }[];
+    polaroids: { caption: string; kind: string; imageUrl?: string }[];
   };
 }
 
@@ -164,13 +171,13 @@ export interface CollectionsContent {
     heading: string;
     sticker: string;
     intro: string;
-    items: { name: string; price: string; emoji: string; note: string; bg: string }[];
+    items: { name: string; price: string; emoji: string; note: string; bg: string; imageUrl?: string }[];
   };
   treasure: {
     heading: string;
     sticker: string;
     valuation: string;
-    items: { emoji: string; name: string; detail: string; rarity: string }[];
+    items: { emoji: string; name: string; detail: string; rarity: string; imageUrl?: string }[];
   };
   cdArchiveTitle: string;
   cdArchiveSticker: string;
@@ -200,7 +207,7 @@ export interface StyleContent {
   moodboard: {
     heading: string;
     sticker: string;
-    tiles: { label: string; note: string; bg: string; span?: string; rotate: number; emoji: string }[];
+    tiles: { label: string; note: string; bg: string; span?: string; rotate: number; emoji: string; imageUrl?: string }[];
   };
   clippings: {
     heading: string;
@@ -231,6 +238,8 @@ export interface SongOfTheWeekContent {
   note: string;
   widgetTitle: string;
   disclaimer: string;
+  audioUrl?: string;
+  coverImageUrl?: string;
 }
 
 export interface SiteContent {
@@ -653,6 +662,16 @@ function deepMerge<T>(defaults: T, saved: Partial<T> | undefined): T {
     }
   }
   return result as T;
+}
+
+export function parseAudioTracks(metadata: string): PlaylistTrackItem[] {
+  try {
+    const meta = JSON.parse(metadata) as { audioTracks?: PlaylistTrackItem[] };
+    if (Array.isArray(meta.audioTracks)) return meta.audioTracks;
+  } catch {
+    // fall through
+  }
+  return [];
 }
 
 export function parsePlaylistTracks(metadata: string): PlaylistTrackItem[] {

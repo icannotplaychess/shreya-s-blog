@@ -9,8 +9,9 @@ import { Polaroid } from "@/components/ui/Polaroid";
 import { SpeechBubble } from "@/components/ui/SpeechBubble";
 import { Starburst } from "@/components/ui/Starburst";
 import { PlaylistAudioPlayer } from "@/components/music/PlaylistAudioPlayer";
-import { parsePlaylistTracks } from "@/lib/site-content-defaults";
+import { parseAudioTracks, parsePlaylistTracks } from "@/lib/site-content";
 import { resolveMediaUrl } from "@/lib/media-url";
+import { PostAttachedMedia } from "@/components/content/PostAttachedMedia";
 
 function TipTapContent({ content }: { content: string }) {
   const doc = parsePostContent(content);
@@ -44,7 +45,29 @@ function TipTapContent({ content }: { content: string }) {
           if (!src) return null;
           return (
             <div key={i} className="my-6 flex justify-center">
-              <Polaroid photo={<img src={src} alt={alt} className="w-full h-full object-cover" />} caption={alt} rotate={i % 2 ? 3 : -2} className="w-64" />
+              <Polaroid photo={<img src={resolveMediaUrl(src)} alt={alt} className="w-full h-full object-cover" />} caption={alt} rotate={i % 2 ? 3 : -2} className="w-64" />
+            </div>
+          );
+        }
+        if (node.type === "audioBlock") {
+          const src = (node as { attrs?: { src?: string; title?: string } }).attrs?.src;
+          const title = (node as { attrs?: { title?: string } }).attrs?.title;
+          if (!src) return null;
+          return (
+            <div key={i} className="my-4 xp-window p-3">
+              {title && <p className="font-comic text-sm mb-2">{title}</p>}
+              <audio src={resolveMediaUrl(src)} controls className="w-full max-w-md" />
+            </div>
+          );
+        }
+        if (node.type === "videoBlock") {
+          const src = (node as { attrs?: { src?: string; title?: string } }).attrs?.src;
+          const title = (node as { attrs?: { title?: string } }).attrs?.title;
+          if (!src) return null;
+          return (
+            <div key={i} className="my-4">
+              {title && <p className="font-comic text-sm mb-2">{title}</p>}
+              <video src={resolveMediaUrl(src)} controls className="w-full max-w-lg rounded-lg border-4 border-white shadow-lg" />
             </div>
           );
         }
@@ -99,8 +122,8 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
     );
   }
 
-  if (post.type === "PHOTO_DUMP" || post.type === "MOODBOARD") {
-    const images = post.mediaItems.map((m) => m.media);
+  if (post.type === "PHOTO_DUMP" || post.type === "MOODBOARD" || post.type === "COLLECTION") {
+    const images = post.mediaItems.filter((m) => m.media.mimeType.startsWith("image/")).map((m) => m.media);
     return (
       <article>
         <CutoutHeading text={post.title} className="text-4xl sm:text-5xl mb-6 justify-center" />
@@ -109,25 +132,28 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
             <p className="font-comic text-sm">{post.excerpt}</p>
           </SpeechBubble>
         )}
-        <div className="relative min-h-[400px]">
-          {images.map((img, i) => (
-            <Polaroid
-              key={img.id}
-              photo={<img src={resolveMediaUrl(img.url)} alt={img.alt ?? ""} className="w-full h-full object-cover" />}
-              caption={img.alt ?? ""}
-              rotate={(i % 5) * 4 - 8}
-              className={`absolute w-36 sm:w-44 ${[
-                "top-0 left-[5%]",
-                "top-12 right-[8%]",
-                "top-40 left-[20%]",
-                "top-32 right-[15%]",
-                "top-64 left-[10%]",
-                "top-56 right-[5%]",
-              ][i % 6]}`}
-            />
-          ))}
-        </div>
+        {images.length > 0 && (
+          <div className="relative min-h-[400px]">
+            {images.map((img, i) => (
+              <Polaroid
+                key={img.id}
+                photo={<img src={resolveMediaUrl(img.url)} alt={img.alt ?? ""} className="w-full h-full object-cover" />}
+                caption={img.alt ?? ""}
+                rotate={(i % 5) * 4 - 8}
+                className={`absolute w-36 sm:w-44 ${[
+                  "top-0 left-[5%]",
+                  "top-12 right-[8%]",
+                  "top-40 left-[20%]",
+                  "top-32 right-[15%]",
+                  "top-64 left-[10%]",
+                  "top-56 right-[5%]",
+                ][i % 6]}`}
+              />
+            ))}
+          </div>
+        )}
         <TipTapContent content={post.content} />
+        <PostAttachedMedia items={post.mediaItems.filter((m) => !m.media.mimeType.startsWith("image/"))} />
       </article>
     );
   }
@@ -144,9 +170,12 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
           coverUrl={post.coverImage?.url}
         />
         <div className="mt-6"><TipTapContent content={post.content} /></div>
+        <PostAttachedMedia items={post.mediaItems} />
       </>
     );
   }
+
+  const audioTracks = parseAudioTracks(post.metadata);
 
   return (
     <article className="paper-card p-6 sm:p-10 -rotate-[0.2deg] relative overflow-visible">
@@ -162,7 +191,11 @@ export function PostSpread({ post }: { post: PostWithRelations }) {
       <CutoutHeading text={post.title} className="text-4xl sm:text-5xl mt-2 mb-4" />
       {post.excerpt && <p className="font-indie text-lg text-grape mb-6">{post.excerpt}</p>}
       {meta.mood && <WordSticker text={meta.mood} palette={0} rotate={-5} className="mb-4" />}
+      {audioTracks.length > 0 && (
+        <PlaylistAudioPlayer title={post.title} tracks={audioTracks} coverUrl={post.coverImage?.url} mood={meta.mood} />
+      )}
       <TipTapContent content={post.content} />
+      <PostAttachedMedia items={post.mediaItems} />
       {post.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-8 pt-4 border-t-2 border-dashed border-hotpink/30">
           {post.tags.map((tag) => (

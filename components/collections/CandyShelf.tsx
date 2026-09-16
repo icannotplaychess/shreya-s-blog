@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useSiteContent } from "@/components/providers/SiteContentProvider";
 import { CutoutHeading } from "@/components/ui/CutoutHeading";
 import { WordSticker } from "@/components/ui/Sticker";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 export function CandyShelf() {
   const { collections } = useSiteContent();
@@ -31,7 +32,11 @@ export function CandyShelf() {
             <span className="absolute -top-2.5 -right-2 font-lucky text-[11px] bg-white border-2 border-inkberry rounded-full px-2 py-0.5 rotate-12 shadow" aria-hidden>
               {c.price}
             </span>
-            <span className="text-4xl block mb-1" aria-hidden>{c.emoji}</span>
+            {c.imageUrl ? (
+              <img src={resolveMediaUrl(c.imageUrl)} alt={c.name} className="w-full h-16 object-cover rounded mb-1 border-2 border-white/80" />
+            ) : (
+              <span className="text-4xl block mb-1" aria-hidden>{c.emoji}</span>
+            )}
             <p className="font-lucky text-sm text-inkberry">{c.name}</p>
             <p className="font-indie text-[11px] text-inkberry/85 leading-tight mt-1">{c.note}</p>
           </motion.div>
