@@ -15,7 +15,7 @@ export default async function EditPostPage({ params }: Params) {
     include: {
       categories: true,
       tags: true,
-      mediaItems: true,
+      mediaItems: { include: { media: true } },
       coverImage: true,
     },
   });
@@ -53,10 +53,12 @@ export default async function EditPostPage({ params }: Params) {
           type: post.type,
           status: post.status,
           coverImageId: post.coverImageId,
+          coverImageUrl: post.coverImage?.url ?? null,
           metadata: post.metadata,
           categoryIds: post.categories.map((c) => c.id),
           tagIds: post.tags.map((t) => t.id),
           mediaIds: post.mediaItems.map((m) => m.mediaId),
+          initialMedia: post.mediaItems.map((m) => m.media),
         }}
       />
     </div>

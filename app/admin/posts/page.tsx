@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PostStatus } from "@/generated/prisma/client";
+import { PostListActions } from "@/components/admin/PostListActions";
 
 export default async function AdminPostsPage({
   searchParams,
@@ -71,6 +72,7 @@ export default async function AdminPostsPage({
                     {post.title}
                   </Link>
                   {post.excerpt && <p className="text-xs text-slate-500 truncate max-w-xs">{post.excerpt}</p>}
+                  <PostListActions postId={post.id} status={post.status} slug={post.slug} />
                 </td>
                 <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{post.type}</td>
                 <td className="px-4 py-3 hidden md:table-cell">

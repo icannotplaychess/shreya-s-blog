@@ -283,6 +283,20 @@ export default function AdminSettingsPage() {
         {tab === "homepage" && (
           <>
             <h2 className="font-semibold text-lg">Homepage</h2>
+            <Card title="Self portrait (welcome polaroid)">
+              <p className="text-sm text-slate-500 mb-3">
+                This is the polaroid on the front page welcome card — upload your photo here.
+              </p>
+              <Field label="Caption under photo" value={hp.polaroidCaption} onChange={(v) => patch("homepage", { ...hp, polaroidCaption: v })} />
+              <MediaUrlField
+                label="Your photo"
+                value={hp.polaroidImageUrl}
+                onChange={(v) => patch("homepage", { ...hp, polaroidImageUrl: v })}
+                accept="image/*"
+                hint="Replaces the default doodle art. Save settings after uploading."
+              />
+              <MediaUrlField label="Sticker next to polaroid (optional)" value={hp.stickerImageUrl} onChange={(v) => patch("homepage", { ...hp, stickerImageUrl: v })} accept="image/*" />
+            </Card>
             <Field label="Tagline" value={hp.tagline} onChange={(v) => patch("homepage", { ...hp, tagline: v })} />
             <Field label="Subtitle" value={hp.subtitle} onChange={(v) => patch("homepage", { ...hp, subtitle: v })} textarea />
             <Field label="Welcome heading" value={hp.welcomeHeading} onChange={(v) => patch("homepage", { ...hp, welcomeHeading: v })} />
@@ -290,9 +304,6 @@ export default function AdminSettingsPage() {
             <Field label="Current obsession" value={hp.currentObsession} onChange={(v) => patch("homepage", { ...hp, currentObsession: v })} />
             <Field label="Mood" value={hp.mood} onChange={(v) => patch("homepage", { ...hp, mood: v })} />
             <Field label="Quote" value={hp.quote} onChange={(v) => patch("homepage", { ...hp, quote: v })} />
-            <Field label="Polaroid caption" value={hp.polaroidCaption} onChange={(v) => patch("homepage", { ...hp, polaroidCaption: v })} />
-            <MediaUrlField label="Polaroid photo" value={hp.polaroidImageUrl} onChange={(v) => patch("homepage", { ...hp, polaroidImageUrl: v })} accept="image/*" hint="Upload a photo for the homepage polaroid (replaces doodle art)." />
-            <MediaUrlField label="Sticker graphic" value={hp.stickerImageUrl} onChange={(v) => patch("homepage", { ...hp, stickerImageUrl: v })} accept="image/*" hint="Optional custom sticker image next to the polaroid." />
             <Field label="Guestbook CTA" value={hp.guestbookCta} onChange={(v) => patch("homepage", { ...hp, guestbookCta: v })} />
             <Field label="About CTA" value={hp.aboutCta} onChange={(v) => patch("homepage", { ...hp, aboutCta: v })} />
             <Field label="Sections heading" value={hp.sectionsHeading} onChange={(v) => patch("homepage", { ...hp, sectionsHeading: v })} />
