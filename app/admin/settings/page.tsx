@@ -82,11 +82,15 @@ const PAGE_KEYS = [
 ] as const;
 
 async function saveSetting(key: string, value: unknown) {
-  await fetch("/api/settings", {
+  const res = await fetch("/api/settings", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ key, value }),
   });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { error?: string }).error || `Save failed (${res.status})`);
+  }
 }
 
 function Card({ title, children }: { title?: string; children: React.ReactNode }) {
@@ -187,9 +191,10 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploading, setUploading] = useState<number | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/public/settings")
+    fetch("/api/public/settings", { cache: "no-store" })
       .then((r) => r.json())
       .then((data) => {
         setContent(mergeSiteContent(data));
@@ -204,11 +209,17 @@ export default function AdminSettingsPage() {
 
   async function saveTab() {
     setSaving(true);
-    const key = SAVE_KEYS[tab];
-    await saveSetting(key, content[key]);
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setError("");
+    try {
+      const key = SAVE_KEYS[tab];
+      await saveSetting(key, content[key]);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save settings");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function uploadTrackAudio(index: number, file: File) {
@@ -241,6 +252,12 @@ export default function AdminSettingsPage() {
       <p className="text-slate-500 text-sm mb-4">
         Edit all site content — homepage, sidebar widgets, pages, music, quizzes, and more.
       </p>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
+          {error}
+        </div>
+      )}
 
       <div className="overflow-x-auto mb-6 -mx-1 px-1">
         <div className="flex gap-2 min-w-max pb-1">

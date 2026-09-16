@@ -9,12 +9,23 @@ export function useSiteContent() {
   return useContext(SiteContentContext);
 }
 
-export function SiteContentProvider({ children }: { children: ReactNode }) {
-  const [content, setContent] = useState<SiteContent>(DEFAULT_SITE_CONTENT);
+export function SiteContentProvider({
+  children,
+  initialContent,
+}: {
+  children: ReactNode;
+  initialContent?: SiteContent;
+}) {
+  const [content, setContent] = useState<SiteContent>(
+    initialContent ? mergeSiteContent(initialContent) : DEFAULT_SITE_CONTENT
+  );
 
   useEffect(() => {
-    fetch("/api/public/settings")
-      .then((r) => r.json())
+    fetch("/api/public/settings", { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("Failed to load settings");
+        return r.json();
+      })
       .then((data) => setContent(mergeSiteContent(data)))
       .catch(() => {});
   }, []);

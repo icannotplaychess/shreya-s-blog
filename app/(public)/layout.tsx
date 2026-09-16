@@ -5,11 +5,16 @@ import { TopMarquee } from "@/components/chrome/TopMarquee";
 import { Nav } from "@/components/chrome/Nav";
 import { Footer } from "@/components/chrome/Footer";
 import { FxDock } from "@/components/chrome/FxDock";
+import { loadSiteContent } from "@/lib/load-site-content";
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export const dynamic = "force-dynamic";
+
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+  const initialContent = await loadSiteContent();
+
   return (
     <SiteSettingsProvider>
-      <SiteContentProvider>
+      <SiteContentProvider initialContent={initialContent}>
         <SparkleTrail />
         <TopMarquee />
         <Nav />
